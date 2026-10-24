@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.Process;
 import android.widget.TextView;
+import org.json.JSONObject;
 
 /**
  * Fresh process for each driver test (from the MW port): adrenotools' loader hooks cannot be switched
@@ -20,18 +21,21 @@ public final class GpuProbeActivity extends Activity {
     @Override protected void onCreate(Bundle state) {
         super.onCreate(state);
         TextView status = new TextView(this);
-        status.setText("Comprobando el driver Vulkan…");
+        status.setText(getString(R.string.probe_checking));
         status.setTextColor(0xFFFFFFFF); status.setTextSize(18);
         status.setGravity(android.view.Gravity.CENTER); status.setBackgroundColor(0xFF0B0F14);
         setContentView(status);
         Handler main = new Handler(Looper.getMainLooper());
-        main.postDelayed(() -> finishReport("{\"probeError\":\"La prueba del driver excedió 20 segundos\",\"driverLoadFailed\":true}"), 20000);
+        // probeError is shown to the player by the launcher; quote() keeps translated text valid JSON.
+        main.postDelayed(() -> finishReport("{\"probeError\":" + JSONObject.quote(getString(R.string.probe_timeout))
+                + ",\"driverLoadFailed\":true}"), 20000);
         String[] loader = GpuDrivers.loaderArguments(this);
         new Thread(() -> {
             String result;
             try { result = nativeGpuReport(loader[0], loader[1], loader[2], loader[3]); }
             catch (Exception | LinkageError error) {
-                result = "{\"probeError\":\"No se pudo ejecutar la prueba: " + error.getClass().getSimpleName() + "\",\"driverLoadFailed\":true}";
+                result = "{\"probeError\":" + JSONObject.quote(getString(R.string.probe_failed, error.getClass().getSimpleName()))
+                        + ",\"driverLoadFailed\":true}";
             }
             String report = result;
             main.post(() -> finishReport(report));

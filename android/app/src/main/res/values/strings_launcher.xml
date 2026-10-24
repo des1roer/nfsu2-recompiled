@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- LauncherActivity -->
+    <string name="launcher_ok">Aceptar</string>
+    <string name="launcher_cancel">Cancelar</string>
+    <string name="launcher_whats_new_title">¡Actualizado a la versión %1$s!</string>
+    <string name="launcher_whats_new_loading">Cargando las novedades…</string>
+    <string name="launcher_view_on_github">Ver en GitHub</string>
+    <string name="launcher_whats_new_failed">No se pudieron cargar las novedades (sin conexión o aún no publicadas). Puedes verlas en GitHub.</string>
+    <string name="launcher_crash_title">El juego se cerró</string>
+    <string name="launcher_crash_message">%1$s.\n\n¿Quieres enviar el registro completo a GitHub para que se pueda corregir?</string>
+    <string name="launcher_report_on_github">Reportar en GitHub</string>
+    <string name="launcher_not_now">Ahora no</string>
+    <string name="launcher_subtitle">PC · recompilado de forma nativa para Android</string>
+    <string name="launcher_game_files">ARCHIVOS DEL JUEGO</string>
+    <string name="launcher_play">JUGAR</string>
+    <string name="launcher_allow_access">Permitir acceso a memoria interna/nfsu2</string>
+    <string name="launcher_options">OPCIONES</string>
+    <string name="launcher_options_note">Se aplican al pulsar JUGAR.</string>
+    <string name="launcher_game_folders">Carpetas del juego</string>
+    <string name="launcher_missing_folders">Faltan carpetas: %1$s</string>
+    <string name="launcher_widescreen_hud">HUD panorámico (scripts/…WidescreenFix.dat)</string>
+    <string name="launcher_check_optional">%1$s · opcional</string>
+    <string name="launcher_status_no_access">Permite el acceso a archivos para leer memoria interna/nfsu2.</string>
+    <string name="launcher_status_ready">Memoria interna/nfsu2</string>
+    <string name="launcher_status_copy">Copia los archivos de tu juego en memoria interna/nfsu2.</string>
+    <string name="launcher_driver">Driver Vulkan</string>
+    <string name="launcher_driver_system_short">Del sistema</string>
+    <string name="launcher_probe_driver">Probar driver</string>
+    <string name="launcher_probe_driver_summary">GPU y funciones Vulkan</string>
+    <string name="launcher_language">Idioma</string>
+    <string name="launcher_reset_cache_summary">Regenerar shaders</string>
+    <string name="launcher_online_server">Servidor online</string>
+    <string name="launcher_check_updates">Buscar actualizaciones</string>
+    <string name="launcher_checking_github">Comprobando GitHub…</string>
+    <string name="launcher_version">Versión %1$s</string>
+    <string name="launcher_report_problem">Reportar un problema</string>
+    <string name="launcher_report_problem_summary">Log completo a GitHub</string>
+    <string name="launcher_no_languages">No se encontraron idiomas en memoria interna/nfsu2/LANGUAGES.</string>
+    <string name="launcher_online_server_message">El modo online del juego (EA Nation) se conecta a este servidor de la comunidad en lugar de los servidores de EA, ya cerrados.</string>
+    <string name="launcher_save">Guardar</string>
+    <string name="launcher_restore">Restaurar</string>
+    <string name="launcher_invalid_server">\"%1$s\" no es un nombre de servidor válido.</string>
+    <string name="launcher_system_driver">Driver del sistema</string>
+    <string name="launcher_import_zip">Importar ZIP</string>
+    <string name="launcher_remove_selected">Eliminar seleccionado</string>
+    <string name="launcher_back">Volver</string>
+    <string name="launcher_probe_title">Prueba del driver Vulkan</string>
+    <string name="launcher_probe_failed">No se pudo usar el driver: %1$s</string>
+    <string name="launcher_probe_error_default">error al iniciar Vulkan.</string>
+    <!-- %1$s GPU, %2$s Vulkan version, %3$s driver name, %4$s driver info, %5$s where BC textures are decoded -->
+    <string name="launcher_probe_report">GPU: %1$s\nVulkan: %2$s\nDriver: %3$s %4$s\nTexturas BC: %5$s</string>
+    <string name="launcher_probe_bc_gpu">en la GPU</string>
+    <string name="launcher_probe_bc_cpu">se convierten en la CPU</string>
+    <string name="launcher_probe_vertex_missing">Tipos de vértice sin soporte: %1$s</string>
+    <string name="launcher_probe_compatible">Compatible con el juego.</string>
+    <string name="launcher_probe_missing_features">Faltan funciones: %1$s</string>
+    <string name="launcher_use_system_driver">Usar driver del sistema</string>
+    <string name="launcher_play_anyway">Jugar igualmente</string>
+    <string name="launcher_invalid_diagnostics">Diagnóstico no válido: %1$s</string>
+    <string name="launcher_probe_cancelled">La prueba se cerró o fue cancelada.</string>
+    <string name="launcher_importing_driver">Importando driver Vulkan…</string>
+    <string name="launcher_driver_imported">Driver importado: %1$s. Usa Probar driver para comprobarlo.</string>
+    <string name="launcher_driver_import_failed">No se pudo importar el driver: %1$s</string>
+    <string name="launcher_updates">Actualizaciones</string>
+    <string name="launcher_up_to_date">Tienes la versión %1$s. No hay una versión más reciente en GitHub.</string>
+    <string name="launcher_new_version_title">Nueva versión disponible: %1$s</string>
+    <string name="launcher_new_version_message">Puedes descargarla desde GitHub o seguir jugando con esta versión. Instala el APK encima del actual para conservar tus partidas y ajustes.</string>
+    <string name="launcher_update">Actualizar</string>
+    <string name="launcher_later">Más tarde</string>
+    <string name="launcher_preparing_report">Preparando el registro…</string>
+    <string name="launcher_report_saved">El registro completo se ha guardado en:\n%1$s\n\nSe abrirá la issue en GitHub con un resumen técnico ya escrito. Describe qué pasó y, si puedes, adjunta ese ZIP (GitHub no permite adjuntarlo automáticamente).</string>
+    <string name="launcher_open_github">Abrir GitHub</string>
+    <string name="launcher_report_failed">No se pudo preparar el registro: %1$s</string>
+    <string name="launcher_no_browser">No hay un navegador para abrir %1$s</string>
+
+    <!-- GameOptions: each labels array follows the order of the option's stored values -->
+    <string name="option_resolution_title">Resolución interna</string>
+    <string-array name="option_resolution_labels">
+        <item>Nativa · máxima calidad</item>
+        <item>75% · equilibrada</item>
+        <item>50% · máximo rendimiento</item>
+        <item>1280×720 · 16:9</item>
+    </string-array>
+    <string name="option_fps_title">Límite de FPS</string>
+    <string-array name="option_fps_labels">
+        <item>30 FPS · ahorra batería</item>
+        <item>60 FPS</item>
+        <item>90 FPS</item>
+        <item>120 FPS</item>
+        <item>Sin límite</item>
+    </string-array>
+    <string name="option_widescreen_title">Pantalla panorámica</string>
+    <string-array name="option_widescreen_labels">
+        <item>HUD y cámara corregidos</item>
+        <item>Original 4:3 estirado</item>
+    </string-array>
+    <string name="option_minimap_title">Minimapa</string>
+    <string-array name="option_minimap_labels">
+        <item>Arriba a la izquierda</item>
+        <item>Abajo a la izquierda (original)</item>
+    </string-array>
+    <string name="option_latency_title">Sincronía CPU/GPU</string>
+    <string-array name="option_latency_labels">
+        <item>Rendimiento · CPU y GPU en paralelo</item>
+        <item>Baja latencia · menos FPS</item>
+    </string-array>
+    <string name="option_textures_title">Texturas comprimidas</string>
+    <string-array name="option_textures_labels">
+        <item>Automático · GPU si las soporta</item>
+        <item>Convertir en CPU · compatibilidad</item>
+    </string-array>
+
+    <!-- GraphicsCache -->
+    <string name="cache_reset_title">Reiniciar caché gráfica</string>
+    <string name="cache_reset_message">Se cerrará la sesión actual del juego. Los shaders se volverán a compilar al jugar; las partidas y los ajustes se conservan.</string>
+    <string name="cache_reset_button">Reiniciar</string>
+    <string name="cache_check_failed">No se pudo comprobar el proceso del juego.</string>
+    <string name="cache_reset_failed">No se pudo reiniciar la caché gráfica.</string>
+    <string name="cache_ready_title">Caché gráfica preparada</string>
+    <string name="cache_ready_message">El próximo arranque generará una caché nueva. La anterior queda respaldada en la caché privada de la app.</string>
+    <string name="cache_title">Caché gráfica</string>
+</resources>

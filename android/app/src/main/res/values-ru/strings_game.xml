@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GameActivity -->
+    <string name="game_cancel">Отмена</string>
+    <string name="game_no_accelerometer">На этом устройстве нет акселерометра</string>
+    <string name="game_tilt_enabled">Управление наклоном устройства</string>
+    <string name="game_tilt_invert">Инвертировать управление</string>
+    <string name="game_tilt_sensitivity">Чувствительность: %1$s×</string>
+    <string name="game_tilt_help">Держите устройство в игровом положении, когда применяете настройки. Наклон управляет поворотом влево/вправо, педали остаются на экране.</string>
+    <string name="game_tilt_title">Управление наклоном</string>
+    <string name="game_tilt_apply">Применить и откалибровать</string>
+    <string name="game_text_hint">Имя, email или пароль</string>
+    <string name="game_text_replace">Заменить текущее имя</string>
+    <string name="game_text_title">Ввод текста в игру</string>
+    <string name="game_text_send">Отправить в игру</string>
+    <string name="game_text_invalid" formatted="false">До 40 символов: латинские буквы без диакритики, цифры и . , - _ @ + ! # $ % &amp; * ( ) = ? / ; :</string>
+    <string name="game_status_checking">Проверка внутреннего хранилища/nfsu2…</string>
+    <string name="game_storage_permission">Разрешите доступ к файлам, чтобы игра могла читать папку nfsu2 во внутреннем хранилище</string>
+
+    <!-- Translations of the fixed phrases the native side passes to GameActivity.setStatus. -->
+    <string name="game_status_data_ok">Данные доступны: внутреннее хранилище/nfsu2</string>
+    <string name="game_status_vulkan_ok">Vulkan 1.1: вывод изображения работает</string>
+    <string name="game_status_crt_pending">Ожидание запуска CRT</string>
+    <string name="game_status_crt_running">Выполняется точка входа CRT игры…</string>
+    <string name="game_status_guest_stopped">Запуск игры остановлен:</string>
+    <string name="game_status_guest_finished">Игра завершилась, код:</string>
+    <string name="game_status_guest_ready">Среда выполнения игры уже запущена</string>
+    <string name="game_status_driver_failed">Не удалось загрузить драйвер Vulkan</string>
+    <string name="game_status_driver_hint">Выберите системный драйвер в лаунчере.</string>
+    <string name="game_status_device_failed">GPU не смог создать графическое устройство (Vulkan, CreateDevice</string>
+    <string name="game_status_device_hint">Запустите «Тест драйвера» в лаунчере, чтобы узнать, чего не хватает.</string>
+
+    <!-- RacingControlsView -->
+    <string name="controls_description">Элементы управления игрой</string>
+    <string name="controls_toolbar_reset">СБРОС</string>
+    <string name="controls_toolbar_save">СОХРАНИТЬ</string>
+    <string name="controls_toolbar_cancel">ОТМЕНА</string>
+    <string name="controls_toolbar_options">НАСТРОЙКИ</string>
+    <string name="controls_options_title">Настройки управления</string>
+    <string name="controls_option_style">Стиль: классика / Xbox / PlayStation</string>
+    <string name="controls_option_frame_limit">Лимит FPS</string>
+    <string name="controls_option_save_named">Сохранить раскладку с названием</string>
+    <string name="controls_option_load_named">Загрузить сохранённую раскладку</string>
+    <string name="controls_close">Закрыть</string>
+    <string name="controls_style_title">Стиль вождения</string>
+    <string name="controls_style_classic">Классика · стрелки и педали</string>
+    <string name="controls_style_xbox">Xbox · руль и A / B / X / Y</string>
+    <string name="controls_style_playstation">PlayStation · руль и × / ○ / □ / △</string>
+    <string name="controls_layout_name_hint">Название раскладки</string>
+    <string name="controls_save_layout_race">Сохранить раскладку для вождения</string>
+    <string name="controls_save_layout_menu">Сохранить раскладку для меню</string>
+    <string name="controls_save">Сохранить</string>
+    <string name="controls_name_required">Введите название</string>
+    <string name="controls_layout_saved">Раскладка «%1$s» сохранена</string>
+    <string name="controls_layout_save_failed">Не удалось сохранить раскладку</string>
+    <string name="controls_no_layouts">Для этого режима пока нет сохранённых раскладок</string>
+    <string name="controls_load_layout_title">Загрузить раскладку</string>
+    <string name="controls_layout_load_failed">Не удалось загрузить раскладку</string>
+
+    <!-- GpuProbeActivity -->
+    <string name="probe_checking">Проверка драйвера Vulkan…</string>
+    <string name="probe_timeout">Тест драйвера не завершился за 20 секунд</string>
+    <string name="probe_failed">Не удалось выполнить тест: %1$s</string>
+</resources>

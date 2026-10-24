@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Diagnostics: crash detected on the next launch and report saved to Download/NFSU2. -->
+    <string name="diag_crash_anr">Игра перестала отвечать</string>
+    <string name="diag_crash_closed">Игра неожиданно закрылась</string>
+    <string name="diag_crash_description">%1$s (%2$s)</string>
+    <string name="diag_error_report">Не удалось создать отчёт.</string>
+    <string name="diag_error_download_create">Не удалось создать файл в папке «Загрузки».</string>
+    <string name="diag_error_download_write">Не удалось записать файл в папку «Загрузки».</string>
+    <string name="diag_download_location">Загрузки/NFSU2/%1$s</string>
+
+    <!-- GitHub update check. -->
+    <string name="update_error_github">Не удалось связаться с GitHub. Проверьте подключение к интернету и попробуйте позже.</string>
+
+    <!-- Custom Vulkan driver import. -->
+    <string name="driver_error_stage_dir">Не удалось создать папку для драйвера.</string>
+    <string name="driver_error_open_zip">Не удалось открыть ZIP-файл.</string>
+    <string name="driver_error_no_meta">В ZIP-архиве драйвера нет meta.json.</string>
+    <string name="driver_error_bad_library_name">Некорректное значение libraryName.</string>
+    <string name="driver_error_min_api">Этому драйверу нужна более новая версия Android.</string>
+    <string name="driver_error_bad_name">Некорректное имя драйвера.</string>
+    <string name="driver_error_install_dir">Не удалось установить драйвер.</string>
+    <string name="driver_error_install_package">Не удалось установить пакет.</string>
+    <string name="driver_error_ambiguous_meta">В пакете несколько файлов meta.json, непонятно, какой из них использовать.</string>
+    <string name="driver_error_read_only">Не удалось защитить библиотеку драйвера от записи.</string>
+    <string name="driver_error_bad_path">Некорректный путь к драйверу.</string>
+    <string name="driver_error_too_many_files">В ZIP-архиве слишком много файлов.</string>
+    <string name="driver_error_bad_entry">В ZIP-архиве есть недопустимые или повторяющиеся пути.</string>
+    <string name="driver_error_mkdir">Не удалось создать папку.</string>
+    <string name="driver_error_too_large">Пакет драйвера слишком большой.</string>
+    <string name="driver_error_not_arm64">Драйвер должен быть библиотекой Android ARM64 (.so). Версии для ПК и 32-битные не подходят.</string>
+    <string name="driver_error_symlink">В пакете найдена неожиданная символическая ссылка.</string>
+    <string name="driver_error_delete">Не удалось удалить «%1$s»</string>
+</resources>

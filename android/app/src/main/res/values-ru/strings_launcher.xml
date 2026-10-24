@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- LauncherActivity -->
+    <string name="launcher_ok">ОК</string>
+    <string name="launcher_cancel">Отмена</string>
+    <string name="launcher_whats_new_title">Обновлено до версии %1$s!</string>
+    <string name="launcher_whats_new_loading">Загрузка списка изменений…</string>
+    <string name="launcher_view_on_github">Открыть на GitHub</string>
+    <string name="launcher_whats_new_failed">Не удалось загрузить список изменений (нет сети или он ещё не опубликован). Его можно посмотреть на GitHub.</string>
+    <string name="launcher_crash_title">Игра закрылась</string>
+    <string name="launcher_crash_message">%1$s.\n\nОтправить полный лог на GitHub, чтобы проблему исправили?</string>
+    <string name="launcher_report_on_github">Сообщить на GitHub</string>
+    <string name="launcher_not_now">Не сейчас</string>
+    <string name="launcher_subtitle">PC · нативно перекомпилировано для Android</string>
+    <string name="launcher_game_files">ФАЙЛЫ ИГРЫ</string>
+    <string name="launcher_play">ИГРАТЬ</string>
+    <string name="launcher_allow_access">Разрешить доступ к внутреннему хранилищу/nfsu2</string>
+    <string name="launcher_options">НАСТРОЙКИ</string>
+    <string name="launcher_options_note">Применяются при нажатии «ИГРАТЬ».</string>
+    <string name="launcher_game_folders">Папки игры</string>
+    <string name="launcher_missing_folders">Отсутствуют папки: %1$s</string>
+    <string name="launcher_widescreen_hud">Широкоформатный HUD (scripts/…WidescreenFix.dat)</string>
+    <string name="launcher_check_optional">%1$s · необязательно</string>
+    <string name="launcher_status_no_access">Разрешите доступ к файлам, чтобы читать внутреннее хранилище/nfsu2.</string>
+    <string name="launcher_status_ready">Внутреннее хранилище/nfsu2</string>
+    <string name="launcher_status_copy">Скопируйте файлы игры во внутреннее хранилище/nfsu2.</string>
+    <string name="launcher_driver">Драйвер Vulkan</string>
+    <string name="launcher_driver_system_short">Системный</string>
+    <string name="launcher_probe_driver">Тест драйвера</string>
+    <string name="launcher_probe_driver_summary">Возможности GPU и Vulkan</string>
+    <string name="launcher_language">Язык</string>
+    <string name="launcher_reset_cache_summary">Перекомпилировать шейдеры</string>
+    <string name="launcher_online_server">Онлайн-сервер</string>
+    <string name="launcher_check_updates">Проверить обновления</string>
+    <string name="launcher_checking_github">Проверка GitHub…</string>
+    <string name="launcher_version">Версия %1$s</string>
+    <string name="launcher_report_problem">Сообщить о проблеме</string>
+    <string name="launcher_report_problem_summary">Полный лог на GitHub</string>
+    <string name="launcher_no_languages">Во внутреннем хранилище/nfsu2/LANGUAGES не найдено ни одного языка.</string>
+    <string name="launcher_online_server_message">Онлайн-режим игры (EA Nation) подключается к этому серверу сообщества вместо закрытых серверов EA.</string>
+    <string name="launcher_save">Сохранить</string>
+    <string name="launcher_restore">По умолчанию</string>
+    <string name="launcher_invalid_server">«%1$s» — недопустимое имя сервера.</string>
+    <string name="launcher_system_driver">Системный драйвер</string>
+    <string name="launcher_import_zip">Импорт ZIP</string>
+    <string name="launcher_remove_selected">Удалить выбранный</string>
+    <string name="launcher_back">Назад</string>
+    <string name="launcher_probe_title">Тест драйвера Vulkan</string>
+    <string name="launcher_probe_failed">Не удалось использовать драйвер: %1$s</string>
+    <string name="launcher_probe_error_default">ошибка инициализации Vulkan.</string>
+    <!-- %1$s GPU, %2$s Vulkan version, %3$s driver name, %4$s driver info, %5$s where BC textures are decoded -->
+    <string name="launcher_probe_report">GPU: %1$s\nVulkan: %2$s\nДрайвер: %3$s %4$s\nBC-текстуры: %5$s</string>
+    <string name="launcher_probe_bc_gpu">на GPU</string>
+    <string name="launcher_probe_bc_cpu">конвертируются на CPU</string>
+    <string name="launcher_probe_vertex_missing">Неподдерживаемые типы вершин: %1$s</string>
+    <string name="launcher_probe_compatible">Совместим с игрой.</string>
+    <string name="launcher_probe_missing_features">Не хватает возможностей: %1$s</string>
+    <string name="launcher_use_system_driver">Использовать системный драйвер</string>
+    <string name="launcher_play_anyway">Всё равно играть</string>
+    <string name="launcher_invalid_diagnostics">Некорректные данные диагностики: %1$s</string>
+    <string name="launcher_probe_cancelled">Тест закрыт или отменён.</string>
+    <string name="launcher_importing_driver">Импорт драйвера Vulkan…</string>
+    <string name="launcher_driver_imported">Драйвер импортирован: %1$s. Проверьте его через «Тест драйвера».</string>
+    <string name="launcher_driver_import_failed">Не удалось импортировать драйвер: %1$s</string>
+    <string name="launcher_updates">Обновления</string>
+    <string name="launcher_up_to_date">У вас версия %1$s. Более новой версии на GitHub нет.</string>
+    <string name="launcher_new_version_title">Доступна новая версия: %1$s</string>
+    <string name="launcher_new_version_message">Её можно скачать с GitHub или продолжить играть в этой версии. Устанавливайте APK поверх текущего, чтобы не потерять сохранения и настройки.</string>
+    <string name="launcher_update">Обновить</string>
+    <string name="launcher_later">Позже</string>
+    <string name="launcher_preparing_report">Подготовка отчёта…</string>
+    <string name="launcher_report_saved">Полный отчёт сохранён в:\n%1$s\n\nНа GitHub откроется issue с уже заполненной технической сводкой. Опишите, что произошло, и, если получится, приложите этот ZIP (GitHub не позволяет прикрепить его автоматически).</string>
+    <string name="launcher_open_github">Открыть GitHub</string>
+    <string name="launcher_report_failed">Не удалось подготовить отчёт: %1$s</string>
+    <string name="launcher_no_browser">Нет браузера, чтобы открыть %1$s</string>
+
+    <!-- GameOptions: each labels array follows the order of the option's stored values -->
+    <string name="option_resolution_title">Внутреннее разрешение</string>
+    <string-array name="option_resolution_labels">
+        <item>Нативное · максимальное качество</item>
+        <item>75% · баланс</item>
+        <item>50% · максимальная производительность</item>
+        <item>1280×720 · 16:9</item>
+    </string-array>
+    <string name="option_fps_title">Лимит FPS</string>
+    <string-array name="option_fps_labels">
+        <item>30 FPS · экономия батареи</item>
+        <item>60 FPS</item>
+        <item>90 FPS</item>
+        <item>120 FPS</item>
+        <item>Без ограничения</item>
+    </string-array>
+    <string name="option_widescreen_title">Широкий экран</string>
+    <string-array name="option_widescreen_labels">
+        <item>HUD и камера исправлены</item>
+        <item>Оригинальный 4:3, растянутый</item>
+    </string-array>
+    <string name="option_minimap_title">Миникарта</string>
+    <string-array name="option_minimap_labels">
+        <item>Слева сверху</item>
+        <item>Слева снизу (как в оригинале)</item>
+    </string-array>
+    <string name="option_latency_title">Синхронизация CPU/GPU</string>
+    <string-array name="option_latency_labels">
+        <item>Производительность · CPU и GPU параллельно</item>
+        <item>Низкая задержка · меньше FPS</item>
+    </string-array>
+    <string name="option_textures_title">Сжатые текстуры</string>
+    <string-array name="option_textures_labels">
+        <item>Автоматически · на GPU, если поддерживаются</item>
+        <item>Конвертация на CPU · совместимость</item>
+    </string-array>
+
+    <!-- GraphicsCache -->
+    <string name="cache_reset_title">Сбросить кэш графики</string>
+    <string name="cache_reset_message">Текущая игровая сессия будет закрыта. Шейдеры заново скомпилируются во время игры; сохранения и настройки останутся.</string>
+    <string name="cache_reset_button">Сбросить</string>
+    <string name="cache_check_failed">Не удалось проверить процесс игры.</string>
+    <string name="cache_reset_failed">Не удалось сбросить кэш графики.</string>
+    <string name="cache_ready_title">Кэш графики сброшен</string>
+    <string name="cache_ready_message">При следующем запуске будет создан новый кэш. Старый сохранён резервной копией в закрытом кэше приложения.</string>
+    <string name="cache_title">Кэш графики</string>
+</resources>

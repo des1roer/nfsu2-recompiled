@@ -29,11 +29,13 @@ final class ReleaseUpdates {
     }
     static void check(Context context, boolean force, Consumer<Result> callback) {
         Context app = context.getApplicationContext();
+        // Resolved here, with the caller's (activity) configuration, not on the worker thread.
+        String failure = context.getString(R.string.update_error_github);
         Handler main = new Handler(Looper.getMainLooper());
         Thread worker = new Thread(() -> {
             Result result;
             try { result = fetch(app, force); }
-            catch (Exception error) { result = new Result(null, null, "No se pudo consultar GitHub. Comprueba tu conexión e inténtalo después."); }
+            catch (Exception error) { result = new Result(null, null, failure); }
             Result value = result;
             main.post(() -> callback.accept(value));
         }, "GitHubReleaseCheck");

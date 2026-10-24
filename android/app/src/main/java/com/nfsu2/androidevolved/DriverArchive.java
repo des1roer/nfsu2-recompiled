@@ -9,6 +9,20 @@ import java.util.zip.*;
 /** Bounded driver ZIP extraction. No Android dependencies so malformed packages can be tested on the host. */
 final class DriverArchive {
     private static final long LIMIT = 256L * 1024 * 1024;
+
+    /**
+     * A rejected or failed package. The message stays the Spanish fallback (host tests, logs); the
+     * app shows {@link #reason} as a localized string (GpuDrivers), since this class has no Context.
+     */
+    static final class Failure extends IOException {
+        enum Reason { TOO_MANY_FILES, BAD_ENTRY, MKDIR, TOO_LARGE, NOT_ARM64, SYMLINK, DELETE }
+        final Reason reason;
+        /** File name for {@link Reason#DELETE}, otherwise null. */
+        final String detail;
+        Failure(Reason reason, String message) { this(reason, message, null); }
+        Failure(Reason reason, String message, String detail) { super(message); this.reason = reason; this.detail = detail; }
+    }
+
     static void extract(InputStream input, File root) throws IOException {
         String prefix = root.getCanonicalPath() + File.separator;
         Set<String> seen = new HashSet<>();
@@ -18,25 +32,25 @@ final class DriverArchive {
             ZipEntry entry;
             byte[] buffer = new byte[65536];
             while ((entry = zip.getNextEntry()) != null) {
-                if (++entries > 1024) throw new IOException("El ZIP contiene demasiados archivos.");
+                if (++entries > 1024) throw new Failure(Failure.Reason.TOO_MANY_FILES, "El ZIP contiene demasiados archivos.");
                 String name = entry.getName();
                 File file = new File(root, name);
                 if (name.startsWith("/") || name.contains("\\") || name.contains(":") || name.split("/").length > 32 ||
                         !file.getCanonicalPath().startsWith(prefix) || !seen.add(file.getCanonicalPath()))
-                    throw new IOException("El ZIP contiene rutas no válidas o repetidas.");
+                    throw new Failure(Failure.Reason.BAD_ENTRY, "El ZIP contiene rutas no válidas o repetidas.");
                 if (entry.isDirectory()) {
-                    if (!file.isDirectory() && !file.mkdirs()) throw new IOException("No se pudo crear la carpeta.");
+                    if (!file.isDirectory() && !file.mkdirs()) throw new Failure(Failure.Reason.MKDIR, "No se pudo crear la carpeta.");
                     continue;
                 }
                 if (!file.getParentFile().isDirectory() && !file.getParentFile().mkdirs())
-                    throw new IOException("No se pudo crear la carpeta.");
+                    throw new Failure(Failure.Reason.MKDIR, "No se pudo crear la carpeta.");
                 long size = 0;
                 try (FileOutputStream output = new FileOutputStream(file)) {
                     int n;
                     while ((n = zip.read(buffer)) != -1) {
                         size += n; total += n;
                         if (size > LIMIT / 2 || total > LIMIT || (file.getName().equals("meta.json") && size > 65536))
-                            throw new IOException("El paquete de driver es demasiado grande.");
+                            throw new Failure(Failure.Reason.TOO_LARGE, "El paquete de driver es demasiado grande.");
                         output.write(buffer, 0, n);
                     }
                 }
@@ -49,13 +63,13 @@ final class DriverArchive {
         try (DataInputStream input = new DataInputStream(new FileInputStream(library))) { input.readFully(h); }
         if (h[0] != 127 || h[1] != 'E' || h[2] != 'L' || h[3] != 'F' || h[4] != 2 || h[5] != 1 ||
                 h[16] != 3 || h[17] != 0 || (h[18] & 255) != 183 || h[19] != 0)
-            throw new IOException("El driver debe ser una biblioteca Android ARM64 (.so), no de PC ni de 32 bits.");
+            throw new Failure(Failure.Reason.NOT_ARM64, "El driver debe ser una biblioteca Android ARM64 (.so), no de PC ni de 32 bits.");
     }
 
     static void delete(File file) throws IOException {
-        if (Files.isSymbolicLink(file.toPath())) throw new IOException("Enlace inesperado en el paquete.");
+        if (Files.isSymbolicLink(file.toPath())) throw new Failure(Failure.Reason.SYMLINK, "Enlace inesperado en el paquete.");
         File[] children = file.listFiles();
         if (children != null) for (File child : children) delete(child);
-        if (file.exists() && !file.delete()) throw new IOException("No se pudo eliminar " + file.getName());
+        if (file.exists() && !file.delete()) throw new Failure(Failure.Reason.DELETE, "No se pudo eliminar " + file.getName(), file.getName());
     }
 }

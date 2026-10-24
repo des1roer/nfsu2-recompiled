@@ -9,13 +9,21 @@ import android.content.SharedPreferences;
  */
 final class GameOptions {
     static final class Option {
-        final String key, title, defaultValue;
-        final String[] values, labels;
-        Option(String key, String title, String defaultValue, String[] values, String[] labels) {
+        /**
+         * {@code title} is a string resource and {@code labels} a string-array resource, so they can be
+         * passed straight to AlertDialog.Builder.setTitle(int) / setSingleChoiceItems(int, ...).
+         */
+        final String key, defaultValue;
+        final int title, labels;
+        final String[] values;
+        Option(String key, int title, String defaultValue, String[] values, int labels) {
             this.key = key; this.title = title; this.defaultValue = defaultValue; this.values = values; this.labels = labels;
         }
-        String label(String value) {
-            for (int i = 0; i < values.length; i++) if (values[i].equals(value)) return labels[i];
+        String title(Context context) { return context.getString(title); }
+        String[] labels(Context context) { return context.getResources().getStringArray(labels); }
+        String label(Context context, String value) {
+            String[] names = labels(context);
+            for (int i = 0; i < values.length; i++) if (values[i].equals(value)) return names[i];
             return value;
         }
     }
@@ -24,25 +32,18 @@ final class GameOptions {
             TEXTURES = "textures", MINIMAP = "minimap", LANGUAGE = "language";
 
     static final Option[] ALL = {
-            new Option(RESOLUTION, "Resolución interna", "75",
-                    new String[] {"100", "75", "50", "720"},
-                    new String[] {"Nativa · máxima calidad", "75% · equilibrada", "50% · máximo rendimiento",
-                            "1280×720 · 16:9"}),
-            new Option(FPS, "Límite de FPS", "120",
-                    new String[] {"30", "60", "90", "120", "0"},
-                    new String[] {"30 FPS · ahorra batería", "60 FPS", "90 FPS", "120 FPS", "Sin límite"}),
-            new Option(WIDESCREEN, "Pantalla panorámica", "on",
-                    new String[] {"on", "off"},
-                    new String[] {"HUD y cámara corregidos", "Original 4:3 estirado"}),
-            new Option(MINIMAP, "Minimapa", "top",
-                    new String[] {"top", "bottom"},
-                    new String[] {"Arriba a la izquierda", "Abajo a la izquierda (original)"}),
-            new Option(LATENCY, "Sincronía CPU/GPU", "2",
-                    new String[] {"2", "1"},
-                    new String[] {"Rendimiento · CPU y GPU en paralelo", "Baja latencia · menos FPS"}),
-            new Option(TEXTURES, "Texturas comprimidas", "auto",
-                    new String[] {"auto", "cpu"},
-                    new String[] {"Automático · GPU si las soporta", "Convertir en CPU · compatibilidad"}),
+            new Option(RESOLUTION, R.string.option_resolution_title, "75",
+                    new String[] {"100", "75", "50", "720"}, R.array.option_resolution_labels),
+            new Option(FPS, R.string.option_fps_title, "120",
+                    new String[] {"30", "60", "90", "120", "0"}, R.array.option_fps_labels),
+            new Option(WIDESCREEN, R.string.option_widescreen_title, "on",
+                    new String[] {"on", "off"}, R.array.option_widescreen_labels),
+            new Option(MINIMAP, R.string.option_minimap_title, "top",
+                    new String[] {"top", "bottom"}, R.array.option_minimap_labels),
+            new Option(LATENCY, R.string.option_latency_title, "2",
+                    new String[] {"2", "1"}, R.array.option_latency_labels),
+            new Option(TEXTURES, R.string.option_textures_title, "auto",
+                    new String[] {"auto", "cpu"}, R.array.option_textures_labels),
     };
 
     private static final String PREFS = "nfsu2_game";

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- GameActivity -->
+    <string name="game_cancel">Cancelar</string>
+    <string name="game_no_accelerometer">Este dispositivo no dispone de acelerómetro</string>
+    <string name="game_tilt_enabled">Girar inclinando el celular</string>
+    <string name="game_tilt_invert">Invertir dirección</string>
+    <string name="game_tilt_sensitivity">Sensibilidad: %1$s×</string>
+    <string name="game_tilt_help">Sostén el celular en tu posición de juego al aplicar. La inclinación activa izquierda/derecha; los pedales siguen siendo táctiles.</string>
+    <string name="game_tilt_title">Conducción por inclinación</string>
+    <string name="game_tilt_apply">Aplicar y calibrar</string>
+    <string name="game_text_hint">Nombre, correo o contraseña</string>
+    <string name="game_text_replace">Reemplazar el nombre actual</string>
+    <string name="game_text_title">Escribir en el juego</string>
+    <string name="game_text_send">Escribir</string>
+    <string name="game_text_invalid" formatted="false">Hasta 40 caracteres: letras sin tildes, números y . , - _ @ + ! # $ % &amp; * ( ) = ? / ; :</string>
+    <string name="game_status_checking">Comprobando memoria interna/nfsu2…</string>
+    <string name="game_storage_permission">Permite acceso a archivos para leer la carpeta nfsu2 de la memoria interna</string>
+
+    <!-- Fixed phrases the native side passes to GameActivity.setStatus (main.cpp, guest_boot_worker.h,
+         guest_runtime.cpp, d3d9_bridge.cpp). The Spanish text must match the native text exactly. -->
+    <string name="game_status_data_ok">Datos accesibles: memoria interna/nfsu2</string>
+    <string name="game_status_vulkan_ok">Vulkan 1.1: presentación activa</string>
+    <string name="game_status_crt_pending">Arranque CRT pendiente</string>
+    <string name="game_status_crt_running">Ejecutando entrada CRT del juego…</string>
+    <string name="game_status_guest_stopped">Arranque guest detenido:</string>
+    <string name="game_status_guest_finished">Entrada guest terminada:</string>
+    <string name="game_status_guest_ready">Runtime guest ya inicializado</string>
+    <string name="game_status_driver_failed">No se pudo cargar el driver Vulkan</string>
+    <string name="game_status_driver_hint">Elige el driver del sistema en el launcher.</string>
+    <string name="game_status_device_failed">La GPU no pudo crear el dispositivo grafico (Vulkan, CreateDevice</string>
+    <string name="game_status_device_hint">Usa \"Probar driver\" en el launcher para ver que le falta.</string>
+
+    <!-- RacingControlsView -->
+    <string name="controls_description">Controles del juego</string>
+    <string name="controls_toolbar_reset">RESTABLECER</string>
+    <string name="controls_toolbar_save">GUARDAR</string>
+    <string name="controls_toolbar_cancel">CANCELAR</string>
+    <string name="controls_toolbar_options">OPCIONES</string>
+    <string name="controls_options_title">Opciones de controles</string>
+    <string name="controls_option_style">Estilo: clásico / Xbox / PlayStation</string>
+    <string name="controls_option_frame_limit">Límite de FPS</string>
+    <string name="controls_option_save_named">Guardar layout con nombre</string>
+    <string name="controls_option_load_named">Cargar layout personalizado</string>
+    <string name="controls_close">Cerrar</string>
+    <string name="controls_style_title">Estilo de conducción</string>
+    <string name="controls_style_classic">Clásico · flechas y pedales</string>
+    <string name="controls_style_xbox">Xbox · volante y A / B / X / Y</string>
+    <string name="controls_style_playstation">PlayStation · volante y × / ○ / □ / △</string>
+    <string name="controls_layout_name_hint">Nombre del layout</string>
+    <string name="controls_save_layout_race">Guardar diseño de conducción</string>
+    <string name="controls_save_layout_menu">Guardar diseño de menú</string>
+    <string name="controls_save">Guardar</string>
+    <string name="controls_name_required">Escribe un nombre</string>
+    <string name="controls_layout_saved">Layout guardado: %1$s</string>
+    <string name="controls_layout_save_failed">No se pudo guardar el layout</string>
+    <string name="controls_no_layouts">Todavía no hay layouts guardados para este modo</string>
+    <string name="controls_load_layout_title">Cargar layout</string>
+    <string name="controls_layout_load_failed">No se pudo cargar el layout</string>
+
+    <!-- GpuProbeActivity -->
+    <string name="probe_checking">Comprobando el driver Vulkan…</string>
+    <string name="probe_timeout">La prueba del driver excedió 20 segundos</string>
+    <string name="probe_failed">No se pudo ejecutar la prueba: %1$s</string>
+</resources>

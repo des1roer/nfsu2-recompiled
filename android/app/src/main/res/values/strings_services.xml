@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Diagnostics: crash detected on the next launch and report saved to Download/NFSU2. -->
+    <string name="diag_crash_anr">El juego dejó de responder</string>
+    <string name="diag_crash_closed">El juego se cerró inesperadamente</string>
+    <!-- %1$s: one of the two strings above; %2$s: Android's exit description. -->
+    <string name="diag_crash_description">%1$s (%2$s)</string>
+    <string name="diag_error_report">No se pudo crear el informe.</string>
+    <string name="diag_error_download_create">No se pudo crear el archivo en Descargas.</string>
+    <string name="diag_error_download_write">No se pudo escribir en Descargas.</string>
+    <!-- Where the report ZIP was saved; %1$s: file name. -->
+    <string name="diag_download_location">Descargas/NFSU2/%1$s</string>
+
+    <!-- GitHub update check. -->
+    <string name="update_error_github">No se pudo consultar GitHub. Comprueba tu conexión e inténtalo después.</string>
+
+    <!-- Custom Vulkan driver import (shown after "No se pudo importar el driver: "). -->
+    <string name="driver_error_stage_dir">No se pudo crear la carpeta del driver.</string>
+    <string name="driver_error_open_zip">No se pudo abrir el ZIP.</string>
+    <string name="driver_error_no_meta">Falta meta.json en el ZIP del driver.</string>
+    <string name="driver_error_bad_library_name">libraryName no es válido.</string>
+    <string name="driver_error_min_api">Este driver necesita una versión más reciente de Android.</string>
+    <string name="driver_error_bad_name">Nombre de driver no válido.</string>
+    <string name="driver_error_install_dir">No se pudo instalar el driver.</string>
+    <string name="driver_error_install_package">No se pudo instalar el paquete.</string>
+    <string name="driver_error_ambiguous_meta">Hay varios meta.json; el paquete es ambiguo.</string>
+    <string name="driver_error_read_only">No se pudo proteger la biblioteca del driver.</string>
+    <string name="driver_error_bad_path">Ruta de driver no válida.</string>
+    <string name="driver_error_too_many_files">El ZIP contiene demasiados archivos.</string>
+    <string name="driver_error_bad_entry">El ZIP contiene rutas no válidas o repetidas.</string>
+    <string name="driver_error_mkdir">No se pudo crear la carpeta.</string>
+    <string name="driver_error_too_large">El paquete de driver es demasiado grande.</string>
+    <string name="driver_error_not_arm64">El driver debe ser una biblioteca Android ARM64 (.so), no de PC ni de 32 bits.</string>
+    <string name="driver_error_symlink">Enlace inesperado en el paquete.</string>
+    <!-- %1$s: file name. -->
+    <string name="driver_error_delete">No se pudo eliminar %1$s</string>
+</resources>

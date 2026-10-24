@@ -70,24 +70,24 @@ public final class GameActivity extends NativeActivity {
         }
     }
     private void showTiltOptions() {
-        if(tiltSensor==null) {Toast.makeText(this,"Este dispositivo no dispone de acelerómetro",Toast.LENGTH_LONG).show();return;}
+        if(tiltSensor==null) {Toast.makeText(this,getString(R.string.game_no_accelerometer),Toast.LENGTH_LONG).show();return;}
         android.content.SharedPreferences options=getSharedPreferences("touch_layouts_v1",MODE_PRIVATE);
         LinearLayout form=new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);form.setPadding(dp(24),dp(8),dp(24),dp(8));
-        CheckBox enabled=new CheckBox(this);enabled.setText("Girar inclinando el celular");enabled.setChecked(tiltEnabled);form.addView(enabled);
-        CheckBox invert=new CheckBox(this);invert.setText("Invertir dirección");invert.setChecked(tiltInvert);form.addView(invert);
-        TextView label=new TextView(this);label.setText("Sensibilidad: "+tiltSensitivity+"×");form.addView(label);
+        CheckBox enabled=new CheckBox(this);enabled.setText(getString(R.string.game_tilt_enabled));enabled.setChecked(tiltEnabled);form.addView(enabled);
+        CheckBox invert=new CheckBox(this);invert.setText(getString(R.string.game_tilt_invert));invert.setChecked(tiltInvert);form.addView(invert);
+        TextView label=new TextView(this);label.setText(getString(R.string.game_tilt_sensitivity,String.valueOf(tiltSensitivity)));form.addView(label);
         android.widget.SeekBar sensitivity=new android.widget.SeekBar(this);sensitivity.setMax(30);sensitivity.setProgress(Math.round(tiltSensitivity*10)-10);form.addView(sensitivity);
         sensitivity.setOnSeekBarChangeListener(new android.widget.SeekBar.OnSeekBarChangeListener() {
             public void onStartTrackingTouch(android.widget.SeekBar bar) {}public void onStopTrackingTouch(android.widget.SeekBar bar) {}
-            public void onProgressChanged(android.widget.SeekBar bar,int progress,boolean user) {label.setText("Sensibilidad: "+((progress+10)/10f)+"×");}
+            public void onProgressChanged(android.widget.SeekBar bar,int progress,boolean user) {label.setText(getString(R.string.game_tilt_sensitivity,String.valueOf((progress+10)/10f)));}
         });
-        TextView help=new TextView(this);help.setText("Sostén el celular en tu posición de juego al aplicar. La inclinación activa izquierda/derecha; los pedales siguen siendo táctiles.");form.addView(help);
-        new AlertDialog.Builder(this).setTitle("Conducción por inclinación").setView(form)
-                .setPositiveButton("Aplicar y calibrar",(dialog,which)->{
+        TextView help=new TextView(this);help.setText(getString(R.string.game_tilt_help));form.addView(help);
+        new AlertDialog.Builder(this).setTitle(getString(R.string.game_tilt_title)).setView(form)
+                .setPositiveButton(getString(R.string.game_tilt_apply),(dialog,which)->{
                     tiltEnabled=enabled.isChecked();tiltInvert=invert.isChecked();tiltSensitivity=(sensitivity.getProgress()+10)/10f;
                     options.edit().putBoolean("tilt.enabled",tiltEnabled).putBoolean("tilt.invert",tiltInvert).putFloat("tilt.sensitivity",tiltSensitivity).apply();
                     updateTiltSensor();
-                }).setNegativeButton("Cancelar",null).show();
+                }).setNegativeButton(getString(R.string.game_cancel),null).show();
     }
     private android.hardware.input.InputManager inputManager;
     private final android.hardware.input.InputManager.InputDeviceListener gamepadListener=new android.hardware.input.InputManager.InputDeviceListener() {
@@ -159,31 +159,31 @@ public final class GameActivity extends NativeActivity {
                 .setSingleChoiceItems(option.labels,selected,(dialog,which)->{
                     GameOptions.set(this,GameOptions.FPS,option.values[which]);
                     nativeFrameLimit(Integer.parseInt(option.values[which]));dialog.dismiss();
-                }).setNegativeButton("Cancelar",null).show();
+                }).setNegativeButton(getString(R.string.game_cancel),null).show();
     }
     private int dp(int value) { return Math.round(value * getResources().getDisplayMetrics().density); }
     private void showTextInput() {
         EditText name = new EditText(this);
         name.setSingleLine(true);
-        name.setHint("Nombre, correo o contraseña");
+        name.setHint(getString(R.string.game_text_hint));
         name.setFilters(new InputFilter[]{new InputFilter.LengthFilter(40)});
         name.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD |
                 InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         name.setImeOptions(EditorInfo.IME_ACTION_DONE | EditorInfo.IME_FLAG_NO_EXTRACT_UI);
         CheckBox replace = new CheckBox(this);
-        replace.setText("Reemplazar el nombre actual");replace.setChecked(true);
+        replace.setText(getString(R.string.game_text_replace));replace.setChecked(true);
         LinearLayout form = new LinearLayout(this);form.setOrientation(LinearLayout.VERTICAL);
         form.setPadding(dp(20), 0, dp(20), 0);form.addView(name);form.addView(replace);
         AlertDialog dialog = new AlertDialog.Builder(this)
-                .setTitle("Escribir en el juego")
+                .setTitle(getString(R.string.game_text_title))
                 .setView(form)
-                .setNegativeButton("Cancelar", null)
-                .setPositiveButton("Escribir", null)
+                .setNegativeButton(getString(R.string.game_cancel), null)
+                .setPositiveButton(getString(R.string.game_text_send), null)
                 .create();
         dialog.setOnShowListener(ignored -> dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(button -> {
             String value = name.getText().toString();
             if (value.isEmpty() || !value.matches("[A-Za-z0-9 .,=/;_+?:!@#$%&*()-]{1,40}")) {
-                name.setError("Hasta 40 caracteres: letras sin tildes, números y . , - _ @ + ! # $ % & * ( ) = ? / ; :");
+                name.setError(getString(R.string.game_text_invalid));
                 return;
             }
             nativeTypeText(value, replace.isChecked());
@@ -232,7 +232,7 @@ public final class GameActivity extends NativeActivity {
         status.setBackgroundColor(0xb0000000);
         status.setTextSize(18);
         status.setPadding(24, 16, 24, 16);
-        status.setText("NFSU2 Android Evolved\nComprobando memoria interna/nfsu2…");
+        status.setText("NFSU2 Android Evolved\n" + getString(R.string.game_status_checking));
         // NativeActivity gives its main window surface to Vulkan; use a separate
         // non-interactive popup surface for the diagnostic text.
         statusWindow = new PopupWindow(status, ViewGroup.LayoutParams.WRAP_CONTENT,
@@ -244,16 +244,45 @@ public final class GameActivity extends NativeActivity {
                 ViewGroup.LayoutParams.MATCH_PARENT, false);
         controlsWindow.setClippingEnabled(false);
     }
+    /**
+     * Fixed Spanish phrases the native side passes to setStatus (main.cpp, guest_boot_worker.h,
+     * guest_runtime.cpp, d3d9_bridge.cpp). They are matching keys, not UI text: each one is replaced by
+     * its string resource, so Spanish stays identical and the technical details around them are kept.
+     */
+    private static final String[] NATIVE_STATUS = {
+            "Datos accesibles: memoria interna/nfsu2", "Vulkan 1.1: presentación activa",
+            "Arranque CRT pendiente", "Ejecutando entrada CRT del juego…",
+            "Arranque guest detenido:", "Entrada guest terminada:", "Runtime guest ya inicializado",
+            "No se pudo cargar el driver Vulkan", "Elige el driver del sistema en el launcher.",
+            "La GPU no pudo crear el dispositivo grafico (Vulkan, CreateDevice",
+            "Usa \"Probar driver\" en el launcher para ver que le falta."};
+    private static final int[] NATIVE_STATUS_TEXT = {
+            R.string.game_status_data_ok, R.string.game_status_vulkan_ok,
+            R.string.game_status_crt_pending, R.string.game_status_crt_running,
+            R.string.game_status_guest_stopped, R.string.game_status_guest_finished, R.string.game_status_guest_ready,
+            R.string.game_status_driver_failed, R.string.game_status_driver_hint,
+            R.string.game_status_device_failed, R.string.game_status_device_hint};
+    private String[] nativeStatusText;
+    /** Runs on the UI thread only. */
+    private String localizeStatus(String message) {
+        if (nativeStatusText == null) {
+            nativeStatusText = new String[NATIVE_STATUS_TEXT.length];
+            for (int i = 0; i < nativeStatusText.length; i++) nativeStatusText[i] = getString(NATIVE_STATUS_TEXT[i]);
+        }
+        for (int i = 0; i < NATIVE_STATUS.length; i++) message = message.replace(NATIVE_STATUS[i], nativeStatusText[i]);
+        return message;
+    }
     public void setStatus(String message) {
         runOnUiThread(() -> {
             if (statusHideTask != null) status.removeCallbacks(statusHideTask);
+            // Matched against the untranslated native text.
             if (message.contains("Ejecutando entrada CRT")) {
-                status.setText("NFSU2 Android Evolved\n" + message);
+                status.setText("NFSU2 Android Evolved\n" + localizeStatus(message));
                 statusHideTask = () -> {statusHidden=true;if(statusWindow.isShowing())statusWindow.dismiss();};
                 status.postDelayed(statusHideTask, 8000);
             } else {
                 statusHidden=false;
-                status.setText("NFSU2 Android Evolved\n" + message);
+                status.setText("NFSU2 Android Evolved\n" + localizeStatus(message));
                 if (!statusWindow.isShowing() && hasWindowFocus())
                     statusWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP | Gravity.START, 0, 0);
             }
@@ -316,7 +345,7 @@ public final class GameActivity extends NativeActivity {
                     && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED;
         if (!allowed && !requested) {
             requested = true;
-            Toast.makeText(this, "Permite acceso a archivos para leer la carpeta nfsu2 de la memoria interna", Toast.LENGTH_LONG).show();
+            Toast.makeText(this, getString(R.string.game_storage_permission), Toast.LENGTH_LONG).show();
             if (Build.VERSION.SDK_INT >= 30) {
                 startActivity(new Intent(Settings.ACTION_MANAGE_APP_ALL_FILES_ACCESS_PERMISSION,
                         Uri.parse("package:" + getPackageName())));
