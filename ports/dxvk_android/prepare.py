@@ -95,4 +95,92 @@ replace("src/vulkan/vulkan_presenter.cpp", '    m_vki->vkDestroySurfaceKHR(m_vki
 shutil.copy2(pathlib.Path(__file__).parent / "pipeline_cache.cpp", args.output / "src/dxvk/dxvk_pipecache.cpp")
 shutil.copy2(pathlib.Path(__file__).parent / "pipeline_cache.h", args.output / "src/dxvk/dxvk_pipecache.h")
 replace("src/dxvk/dxvk_pipemanager.cpp", '    m_cache     (new DxvkPipelineCache(device->vkd())) {', '    m_cache     (new DxvkPipelineCache(device->vkd(), device->properties().core.properties)) {')
+
+# D3DDECLTYPE_SHORT2/SHORT4/UBYTE4 map to SCALED formats, which Vulkan makes optional
+# for vertex fetch; Adreno 710 (POCO Pad, SM7435) has none, and the game's geometry
+# came out shrunk and scattered. Without them the attribute is fetched as SNORM/UNORM
+# and the vertex shader scales it back to the integer value (spec constant 11, the
+# last free one: 2 bits per input slot, 1 SHORT2, 2 SHORT4, 3 UBYTE4).
+replace("src/d3d9/d3d9_spec_constants.h", '    SamplerDepthMode  = 10,\n', '    SamplerDepthMode  = 10,\n\n    VertexScaledInputs = 11,\n')
+replace("src/dxso/dxso_compiler.cpp", '''  void DxsoCompiler::emitInputSetup() {
+    uint32_t pointCoord = 0;
+    D3D9PointSizeInfoPS pointInfo;
+''', '''  void DxsoCompiler::emitInputSetup() {
+    uint32_t pointCoord = 0;
+    D3D9PointSizeInfoPS pointInfo;
+
+    // Inputs fetched as SNORM/UNORM in place of an unsupported SCALED format.
+    uint32_t scaledInputs = 0;
+    if (m_programInfo.type() == DxsoProgramType::VertexShader) {
+      scaledInputs = m_module.specConst32(m_module.defIntType(32, 0), 0);
+      m_module.decorateSpecId(scaledInputs, getSpecId(D3D9SpecConstantId::VertexScaledInputs));
+      m_module.setDebugName(scaledInputs, "scaledInputs");
+    }
+''')
+replace("src/dxso/dxso_compiler.cpp", '''      DxsoRegisterValue indexVal = this->emitValueLoad(inputPtr);
+''', '''      DxsoRegisterValue indexVal = this->emitValueLoad(inputPtr);
+
+      if (scaledInputs != 0 && slot < 16) {
+        uint32_t uintType = m_module.defIntType(32, 0);
+        uint32_t boolType = m_module.defBoolType();
+        uint32_t bvecType = m_module.defVectorType(boolType, 4);
+        uint32_t vecType  = getVectorTypeId(indexVal.type);
+        uint32_t mode = m_module.opBitFieldUExtract(uintType, scaledInputs,
+          m_module.constu32(2 * slot), m_module.constu32(2));
+        auto splat = [&] (uint32_t value) {
+          std::array<uint32_t, 4> values = { value, value, value, value };
+          return m_module.opCompositeConstruct(bvecType, values.size(), values.data());
+        };
+        // SHORT2 keeps the fetched z = 0, w = 1.
+        uint32_t scale = m_module.constvec4f32(32767.0f, 32767.0f, 1.0f, 1.0f);
+        scale = m_module.opSelect(vecType, splat(m_module.opIEqual(boolType, mode, m_module.constu32(2))),
+          m_module.constvec4f32(32767.0f, 32767.0f, 32767.0f, 32767.0f), scale);
+        scale = m_module.opSelect(vecType, splat(m_module.opIEqual(boolType, mode, m_module.constu32(3))),
+          m_module.constvec4f32(255.0f, 255.0f, 255.0f, 255.0f), scale);
+        uint32_t scaled = m_module.opRound(vecType, m_module.opFMul(vecType, indexVal.id, scale));
+        indexVal.id = m_module.opSelect(vecType, splat(m_module.opINotEqual(boolType, mode, m_module.constu32(0))),
+          scaled, indexVal.id);
+      }
+''')
+replace("src/d3d9/d3d9_device.cpp", '  void D3D9DeviceEx::BindInputLayout() {\n', '''  // Bit n set: D3DDECLTYPE n has no vertex fetch in its SCALED format on this GPU.
+  static uint32_t D3D9ScaledVertexFallback(const Rc<DxvkAdapter>& adapter) {
+    static const uint32_t s_mask = [&] {
+      uint32_t mask = 0;
+      for (D3DDECLTYPE type : { D3DDECLTYPE_UBYTE4, D3DDECLTYPE_SHORT2, D3DDECLTYPE_SHORT4 }) {
+        if (!(adapter->formatProperties(DecodeDecltype(type)).bufferFeatures & VK_FORMAT_FEATURE_VERTEX_BUFFER_BIT))
+          mask |= 1u << type;
+      }
+      if (mask)
+        Logger::warn(str::format("D3D9: no SCALED vertex fetch, UBYTE4/SHORT2/SHORT4 rescaled in shaders, mask ", mask));
+      return mask;
+    }();
+    return s_mask;
+  }
+
+
+  void D3D9DeviceEx::BindInputLayout() {
+''')
+replace("src/d3d9/d3d9_device.cpp", '        cStreamFreq       = streamFreq\n', '        cStreamFreq       = streamFreq,\n        cScaledFallback   = D3D9ScaledVertexFallback(m_dxvkDevice->adapter())\n')
+replace("src/d3d9/d3d9_device.cpp", '        uint32_t attrMask = 0;\n', '        uint32_t attrMask = 0;\n        uint32_t scaledInputs = 0;\n')
+replace("src/d3d9/d3d9_device.cpp", '              attrib.offset  = element.Offset;\n', '''              attrib.offset  = element.Offset;
+
+              if (unlikely(cScaledFallback & (1u << element.Type))) {
+                if (cVertexShader != nullptr && i < 16) {
+                  uint32_t mode = 0;
+                  switch (element.Type) {
+                    case D3DDECLTYPE_SHORT2: attrib.format = VK_FORMAT_R16G16_SNORM;       mode = 1; break;
+                    case D3DDECLTYPE_SHORT4: attrib.format = VK_FORMAT_R16G16B16A16_SNORM; mode = 2; break;
+                    case D3DDECLTYPE_UBYTE4: attrib.format = VK_FORMAT_R8G8B8A8_UNORM;     mode = 3; break;
+                    default: break;
+                  }
+                  scaledInputs |= mode << (2 * i);
+                } else {
+                  // Fixed function and slots past 15 have no rescale: SCALED is kept.
+                  static bool s_logged = false;
+                  if (!std::exchange(s_logged, true))
+                    Logger::warn(str::format("D3D9: SCALED vertex type ", uint32_t(element.Type), " without rescale (fixed function or slot ", i, ")"));
+                }
+              }
+''')
+replace("src/d3d9/d3d9_device.cpp", '          bindCount, bindList.data());\n', '          bindCount, bindList.data());\n\n        ctx->setSpecConstant(VK_PIPELINE_BIND_POINT_GRAPHICS, D3D9SpecConstantId::VertexScaledInputs, scaledInputs);\n')
 (args.output / "ANDROID_PREPARE_SHA256").write_text(hashlib.sha256(pathlib.Path(__file__).read_bytes()).hexdigest() + "\n", encoding="ascii")
