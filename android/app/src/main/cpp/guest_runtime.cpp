@@ -982,12 +982,20 @@ void setGuestCheatCode(const std::string& code){
             setGuestKey(scan,false);
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
         }
-        // The Press-Start screen needs ENTER to actually commit what was typed; without it the
-        // code just sits there and nothing happens, which looked like the whole feature was broken.
-        // A real player pauses before confirming; firing ENTER 80ms after the last letter's key-up
-        // measurably failed to register (confirmed: ENTER alone, with nothing typed first, works
-        // fine), so give the typed buffer time to settle before confirming it.
-        std::this_thread::sleep_for(std::chrono::milliseconds(400));
+        // Confirmed by diagnostics: ENTER alone (nothing typed) advances the screen just fine,
+        // but ENTER after typing anything - cheat code or garbage - never does, no matter how
+        // long the pause or how many times it's retried. The screen's ENTER handling branches on
+        // whether the typed-text buffer is empty: non-empty, it only evaluates/applies whatever
+        // was typed and does not advance. So clear what was typed with BACKSPACE before pressing
+        // ENTER, the same way a player would need to, to get back to the "advance" branch.
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        for(size_t i=0;i<code.size();++i){
+            setGuestKey(0xe,true);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+            setGuestKey(0xe,false);
+            std::this_thread::sleep_for(std::chrono::milliseconds(60));
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
         setGuestKey(0x1c,true);
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
         setGuestKey(0x1c,false);
