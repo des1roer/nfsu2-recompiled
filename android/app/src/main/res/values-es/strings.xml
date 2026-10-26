@@ -172,7 +172,7 @@
     <string name="cheats_custom_hint">Código personalizado</string>
     <string name="cheats_custom_entry">Código personalizado…</string>
     <string name="cheats_send">Enviar</string>
-    <string name="cheats_sent">Enviado: %1$s. Ahora pulsa ENTER en la pantalla para continuar — el código no hace nada hasta que lo hagas.</string>
+    <string name="cheats_sent">Enviado: %1$s (ENTER pulsado automáticamente)</string>
     <string name="cheat_ordermebaby">ordermebaby — $1000 (Carrera) + RX-8 y Skyline (Carrera rápida)</string>
     <string name="cheat_regmybank">regmybank — $200 (Carrera)</string>
     <string name="cheat_regmebaby">regmebaby — $20 000 (Carrera)</string>

@@ -982,6 +982,11 @@ void setGuestCheatCode(const std::string& code){
             setGuestKey(scan,false);
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
         }
+        // The Press-Start screen needs ENTER to actually commit what was typed; without it the
+        // code just sits there and nothing happens, which looked like the whole feature was broken.
+        setGuestKey(0x1c,true);
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
+        setGuestKey(0x1c,false);
     }).detach();
 }
 void clearGuestInput(){std::lock_guard<std::mutex> lock(inputMutex);for(unsigned scan=0;scan<256;++scan)if(inputKeys[scan]){recordInputKey(scan,false);enqueueGuestKey(scan,false);}inputKeys.fill(0);inputMouseButtons.fill(0);inputMouseX=inputMouseY=inputMouseZ=0;}

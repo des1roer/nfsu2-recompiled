@@ -172,7 +172,7 @@
     <string name="cheats_custom_hint">Custom code</string>
     <string name="cheats_custom_entry">Custom code…</string>
     <string name="cheats_send">Send</string>
-    <string name="cheats_sent">Sent: %1$s. Now press ENTER on the screen to continue — the code has no effect until you do.</string>
+    <string name="cheats_sent">Sent: %1$s (ENTER pressed automatically)</string>
     <string name="cheat_ordermebaby">ordermebaby — $1,000 (Career) + RX-8 and Skyline (Quick Race)</string>
     <string name="cheat_regmybank">regmybank — $200 (Career)</string>
     <string name="cheat_regmebaby">regmebaby — $20,000 (Career)</string>

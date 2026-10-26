@@ -172,7 +172,7 @@
     <string name="cheats_custom_hint">Свой код</string>
     <string name="cheats_custom_entry">Свой код…</string>
     <string name="cheats_send">Отправить</string>
-    <string name="cheats_sent">Отправлено: %1$s. Теперь нажмите ENTER на экране, чтобы продолжить — без этого код не применится.</string>
+    <string name="cheats_sent">Отправлено: %1$s (ENTER нажат автоматически)</string>
     <string name="cheat_ordermebaby">ordermebaby — $1000 (карьера) + RX-8 и Skyline (быстрая гонка)</string>
     <string name="cheat_regmybank">regmybank — $200 (карьера)</string>
     <string name="cheat_regmebaby">regmebaby — $20 000 (карьера)</string>
