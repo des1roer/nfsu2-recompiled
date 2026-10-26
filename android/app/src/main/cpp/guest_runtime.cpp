@@ -984,17 +984,15 @@ void setGuestCheatCode(const std::string& code){
         }
         // Confirmed by diagnostics: ENTER alone (nothing typed) advances the screen just fine,
         // but ENTER after typing anything - cheat code or garbage - never does, no matter how
-        // long the pause or how many times it's retried. The screen's ENTER handling branches on
-        // whether the typed-text buffer is empty: non-empty, it only evaluates/applies whatever
-        // was typed and does not advance. So clear what was typed with BACKSPACE before pressing
-        // ENTER, the same way a player would need to, to get back to the "advance" branch.
+        // long the pause or how many times it's retried. Backing out what was typed one BACKSPACE
+        // per character first did not fix it either (still confirmed stuck afterward), so whatever
+        // gates "ENTER advances" isn't simply "the buffer is empty". Try ESCAPE instead: Win32 text
+        // entry conventionally treats it as "cancel and exit text-entry mode" outright, rather than
+        // relying on the buffer being walked back to empty one character at a time.
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        for(size_t i=0;i<code.size();++i){
-            setGuestKey(0xe,true);
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
-            setGuestKey(0xe,false);
-            std::this_thread::sleep_for(std::chrono::milliseconds(60));
-        }
+        setGuestKey(0x1,true);
+        std::this_thread::sleep_for(std::chrono::milliseconds(80));
+        setGuestKey(0x1,false);
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
         setGuestKey(0x1c,true);
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
