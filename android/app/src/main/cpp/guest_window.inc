@@ -152,7 +152,16 @@ void dispatchMessage(){
     uint32_t message=arg(0);if(!message){ret(0,1);return;}
     uint32_t hwnd=read32(message),type=read32(message+4),wparam=read32(message+8),lparam=read32(message+12);
     if(type==0x102)NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","DispatchMessage: WM_CHAR '%c' to hwnd=%08x (%s)",(char)wparam,hwnd,windows.count(hwnd)?"known window":"UNKNOWN HWND");
-    ret(windowMessage(hwnd,type,wparam,lparam),1);
+    bool watchReturn=(type==0x100||type==0x101)&&wparam==13;
+    if(watchReturn){
+        size_t pending;{std::lock_guard<std::mutex> lock(messageMutex);pending=windowMessages.size();}
+        NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","DispatchMessage: %s VK_RETURN to hwnd=%08x, %zu messages still queued",type==0x100?"WM_KEYDOWN":"WM_KEYUP",hwnd,pending);
+    }
+    uint32_t result=windowMessage(hwnd,type,wparam,lparam);
+    if(watchReturn||(type==0x102&&wparam==13))
+        NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","DispatchMessage: %s(13) to hwnd=%08x returned %08x",
+            type==0x100?"WM_KEYDOWN":type==0x101?"WM_KEYUP":"WM_CHAR",hwnd,result);
+    ret(result,1);
 }
 void translateMessage(){
     uint32_t address=arg(0);if(!address){ret(0,1);return;}uint32_t type=read32(address+4),key=read32(address+8);
