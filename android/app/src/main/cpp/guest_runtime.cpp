@@ -984,8 +984,12 @@ void setGuestCheatCode(const std::string& code){
         }
         // The Press-Start screen needs ENTER to actually commit what was typed; without it the
         // code just sits there and nothing happens, which looked like the whole feature was broken.
+        // A real player pauses before confirming; firing ENTER 80ms after the last letter's key-up
+        // measurably failed to register (confirmed: ENTER alone, with nothing typed first, works
+        // fine), so give the typed buffer time to settle before confirming it.
+        std::this_thread::sleep_for(std::chrono::milliseconds(400));
         setGuestKey(0x1c,true);
-        std::this_thread::sleep_for(std::chrono::milliseconds(80));
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
         setGuestKey(0x1c,false);
     }).detach();
 }
