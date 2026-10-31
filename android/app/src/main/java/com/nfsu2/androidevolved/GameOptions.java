@@ -38,7 +38,7 @@ final class GameOptions {
     }
 
     static final String RESOLUTION = "resolution", FPS = "fps", WIDESCREEN = "widescreen", LATENCY = "latency",
-            TEXTURES = "textures", MINIMAP = "minimap", LANGUAGE = "language";
+            TEXTURES = "textures", MINIMAP = "minimap", LANGUAGE = "language", REGION = "region", FPS_OVERLAY = "fps_overlay", TACHOMETER = "tachometer", PAD_LAYOUT = "pad_layout";
 
     static final Option[] ALL = {
             new Option(RESOLUTION, R.string.option_resolution_title, "75",
@@ -56,13 +56,42 @@ final class GameOptions {
             new Option(MINIMAP, R.string.option_minimap_title, "top",
                     new String[] {"top", "bottom"},
                     new int[] {R.string.option_minimap_top, R.string.option_minimap_bottom}),
+            new Option(TACHOMETER, R.string.option_tachometer_title, "bottom",
+                    new String[] {"bottom", "raised", "middle"},
+                    new int[] {R.string.option_tachometer_bottom, R.string.option_tachometer_raised,
+                            R.string.option_tachometer_middle}),
+            new Option(PAD_LAYOUT, R.string.option_pad_layout_title, "port",
+                    new String[] {"port", "console"},
+                    new int[] {R.string.option_pad_layout_port, R.string.option_pad_layout_console}),
             new Option(LATENCY, R.string.option_latency_title, "2",
                     new String[] {"2", "1"},
                     new int[] {R.string.option_latency_2, R.string.option_latency_1}),
             new Option(TEXTURES, R.string.option_textures_title, "auto",
                     new String[] {"auto", "cpu"},
                     new int[] {R.string.option_textures_auto, R.string.option_textures_cpu}),
+            new Option(FPS_OVERLAY, R.string.option_fps_overlay_title, "off",
+                    new String[] {"off", "fps", "full"},
+                    new int[] {R.string.option_fps_overlay_off, R.string.option_fps_overlay_fps,
+                            R.string.option_fps_overlay_full}),
     };
+
+    /** 0 original, 1 raised, 2 mid-screen (native nfs_widescreen_set_tachometer_offset). */
+    static int tachometerPosition(Context context) {
+        switch (get(context, TACHOMETER)) {
+            case "middle": return 2;
+            case "raised": return 1;
+            default: return 0;
+        }
+    }
+
+    /** -1 keeps the executable's region, 0 North America, 1 Europe (native setGuestRegion). */
+    static int regionCode(Context context) {
+        switch (get(context, REGION)) {
+            case "eu": return 1;
+            case "na": return 0;
+            default: return -1;
+        }
+    }
 
     private static final String PREFS = "nfsu2_game";
 

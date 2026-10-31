@@ -129,6 +129,19 @@
     <string name="option_textures_title">Texturas comprimidas</string>
     <string name="option_textures_auto">Automático · GPU si las soporta</string>
     <string name="option_textures_cpu">Convertir en CPU · compatibilidad</string>
+    <string name="option_tachometer_title">Cuentarrevoluciones</string>
+    <string name="option_tachometer_bottom">Abajo a la derecha (original)</string>
+    <string name="option_tachometer_raised">Un poco más arriba</string>
+    <string name="option_tachometer_middle">A media altura</string>
+    <string name="option_pad_layout_title">Controles del mando</string>
+    <string name="option_pad_layout_port">Los del port</string>
+    <string name="option_pad_layout_console">Como en consola · cruceta: mapa, SMS, estadísticas</string>
+    <string name="option_fps_overlay_title">Contador de FPS</string>
+    <string name="option_fps_overlay_off">Desactivado</string>
+    <string name="option_fps_overlay_fps">FPS</string>
+    <string name="option_fps_overlay_full">FPS y ms por frame</string>
+    <string name="launcher_check_language_missing">Falta LANGUAGES/&lt;idioma&gt;.bin</string>
+    <string name="launcher_check_region_rows">Región Europa: falta GLOBAL/GLOBALTEXTURESROW.BIN (de un disco europeo)</string>
     <string name="common_close">Cerrar</string>
 
     <string name="game_status_checking_storage">Comprobando memoria interna/nfsu2…</string>

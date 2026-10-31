@@ -129,6 +129,19 @@
     <string name="option_textures_title">Compressed textures</string>
     <string name="option_textures_auto">Automatic · GPU when supported</string>
     <string name="option_textures_cpu">Convert on CPU · compatibility</string>
+    <string name="option_tachometer_title">Tachometer</string>
+    <string name="option_tachometer_bottom">Bottom right (original)</string>
+    <string name="option_tachometer_raised">A little higher</string>
+    <string name="option_tachometer_middle">Half way up</string>
+    <string name="option_pad_layout_title">Gamepad controls</string>
+    <string name="option_pad_layout_port">The port\'s own</string>
+    <string name="option_pad_layout_console">Console-like · D-pad: map, SMS, stats</string>
+    <string name="option_fps_overlay_title">FPS counter</string>
+    <string name="option_fps_overlay_off">Off</string>
+    <string name="option_fps_overlay_fps">FPS</string>
+    <string name="option_fps_overlay_full">FPS and ms per frame</string>
+    <string name="launcher_check_language_missing">Missing LANGUAGES/&lt;language&gt;.bin</string>
+    <string name="launcher_check_region_rows">Europe region: GLOBAL/GLOBALTEXTURESROW.BIN is missing (from a European disc)</string>
     <string name="common_close">Close</string>
 
     <string name="game_status_checking_storage">Checking internal storage/nfsu2…</string>

@@ -18,6 +18,11 @@ void nfs_widescreen_set_minimap_offset(float dy);
  * the touch controls' steering/shift buttons; everything else in the 4:3
  * frame -- speedometer, FOV, geometry -- stays exactly as the game draws it. */
 void nfs_widescreen_set_minimap_relocate(int enabled, const char* game_root);
+/* Vertical offset (same units) added to the tachometer and nitrous gauges. */
+void nfs_widescreen_set_tachometer_offset(float dy);
+/* 1 once after a minimap/tachometer offset changed: the caller has the game
+ * rebuild its HUD geometry (on the game thread, between frames). */
+int nfs_widescreen_take_relayout(void);
 /* Game frame pacing (the game caps itself at 60): fps >= 30 replaces its 1/60 s
  * frame time; 0 keeps the original. apply() re-asserts it once per frame,
  * since the game re-sets 1/60 on mode changes. */

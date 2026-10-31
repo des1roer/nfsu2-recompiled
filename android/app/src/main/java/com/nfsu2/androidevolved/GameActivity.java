@@ -146,6 +146,7 @@ public final class GameActivity extends NativeActivity {
             touchControls.setGameMode(nativeDrivingControls());
             // Playing on with the pad after a touch revealed the controls hides them again.
             if(nativeGamepadUsed())touchControls.gamepadUsed();
+            updateHudForGamepad(touchControls.hiddenByGamepad());
             touchControls.postDelayed(this,250);
         }
     };
@@ -163,8 +164,53 @@ public final class GameActivity extends NativeActivity {
     private static native void nativeGamepadConnected(boolean connected);
     private static native void nativeGamepadDevices(int[] ids);
     private static native void nativeMinimapTop(boolean top);
+    private static native void nativeTachometerPosition(int position);
+    private static native void nativeGamepadLayout(boolean console);
+    // The minimap and tachometer moves make room for the touch controls. Both
+    // follow them at once: original places while a gamepad hides them, the
+    // launcher's when a touch shows them (the game rebuilds its HUD).
+    private boolean minimapTop;
+    private int tachometerPosition;
+    private Boolean hudForGamepad;
+    private void updateHudForGamepad(boolean gamepad) {
+        if (hudForGamepad != null && hudForGamepad == gamepad) return;
+        hudForGamepad = gamepad;
+        nativeTachometerPosition(gamepad ? 0 : tachometerPosition);
+        nativeMinimapTop(minimapTop && !gamepad);
+    }
     private static native void nativeBackBuffers(int count);
     private static native void nativeCpuTextures(boolean enabled);
+    private static native void nativeRegion(int region);
+    private static native float[] nativeFrameStats();
+    // Launcher "Contador de FPS": a non-interactive popup over the game, like the status text.
+    private TextView fpsView;
+    private PopupWindow fpsWindow;
+    private String fpsMode = "off";
+    private final android.os.Handler fpsHandler = new android.os.Handler(android.os.Looper.getMainLooper());
+    private final Runnable fpsUpdate = new Runnable() {
+        @Override public void run() {
+            float[] stats = nativeFrameStats();
+            if (stats != null && fpsView != null) {
+                if (stats[0] <= 0f) fpsView.setText("-- FPS");
+                else if ("full".equals(fpsMode))
+                    fpsView.setText(String.format(java.util.Locale.US, "%.0f FPS  %.1f ms", stats[0], stats[1]));
+                else fpsView.setText(String.format(java.util.Locale.US, "%.0f FPS", stats[0]));
+            }
+            fpsHandler.postDelayed(this, 500);
+        }
+    };
+    private void showFpsOverlay(boolean show) {
+        if (fpsWindow == null) return;
+        if (show && !fpsWindow.isShowing()) {
+            // Top centre: the top-right corner holds the touch layout and settings buttons.
+            fpsWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, dp(8));
+            fpsHandler.removeCallbacks(fpsUpdate);
+            fpsHandler.post(fpsUpdate);
+        } else if (!show) {
+            fpsHandler.removeCallbacks(fpsUpdate);
+            if (fpsWindow.isShowing()) fpsWindow.dismiss();
+        }
+    }
     private static native void nativeGpuDriver(String hooks, String temp, String directory, String library);
     private void showFrameLimitOptions() {
         GameOptions.Option option=GameOptions.find(GameOptions.FPS);
@@ -307,9 +353,27 @@ public final class GameActivity extends NativeActivity {
         nativeMinimapRelocate(widescreen.equals("off_minimap"));
         String server = launch.getStringExtra("onlineServer");
         nativeOnlineServer(GameOptions.validServer(server) ? server : GameOptions.onlineServer(this));
-        nativeMinimapTop(launch.getBooleanExtra("minimapTop", GameOptions.get(this, GameOptions.MINIMAP).equals("top")));
+        minimapTop = launch.getBooleanExtra("minimapTop", GameOptions.get(this, GameOptions.MINIMAP).equals("top"));
+        tachometerPosition = launch.getIntExtra("tachometer", GameOptions.tachometerPosition(this));
+        updateHudForGamepad(false);
+        nativeGamepadLayout(launch.getBooleanExtra("consolePad", GameOptions.get(this, GameOptions.PAD_LAYOUT).equals("console")));
         nativeBackBuffers(launch.getIntExtra("backBuffers", Integer.parseInt(GameOptions.get(this, GameOptions.LATENCY))));
         nativeCpuTextures(launch.getBooleanExtra("cpuTextures", GameOptions.get(this, GameOptions.TEXTURES).equals("cpu")));
+        nativeRegion(launch.getIntExtra("region", GameOptions.regionCode(this)));
+        String overlay = launch.getStringExtra("fpsOverlay");
+        fpsMode = overlay != null ? overlay : GameOptions.get(this, GameOptions.FPS_OVERLAY);
+        if (!"off".equals(fpsMode)) {
+            fpsView = new TextView(this);
+            fpsView.setTextColor(0xff7cff7c);
+            fpsView.setBackgroundColor(0x99000000);
+            fpsView.setTextSize(14);
+            fpsView.setTypeface(android.graphics.Typeface.MONOSPACE, android.graphics.Typeface.BOLD);
+            fpsView.setPadding(dp(8), dp(3), dp(8), dp(3));
+            fpsView.setText("-- FPS");
+            fpsWindow = new PopupWindow(fpsView, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, false);
+            fpsWindow.setTouchable(false);
+            fpsWindow.setClippingEnabled(false);
+        }
         String[] loader = launch.getStringArrayExtra("driverLoader");
         if (loader == null || loader.length != 4) loader = GpuDrivers.loaderArguments(this);
         nativeGpuDriver(loader[0], loader[1], loader[2], loader[3]);
@@ -385,6 +449,7 @@ public final class GameActivity extends NativeActivity {
             if(touchControls!=null)touchControls.releaseAll();
             setTiltKeys(false,false);
             if(controlsWindow!=null)controlsWindow.dismiss();
+            showFpsOverlay(false);
         }
         if(focused){
             if(Build.VERSION.SDK_INT>=30){
@@ -400,6 +465,8 @@ public final class GameActivity extends NativeActivity {
         if (focused && foreground && controlsWindow != null && !controlsWindow.isShowing()) {
             controlsWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP | Gravity.START, 0, 0);
         }
+        // After the touch controls, so the counter is drawn above them.
+        if (focused && foreground) showFpsOverlay(true);
     }
     // LAN games announce and discover themselves with UDP broadcasts on port 9999;
     // without this lock many devices drop incoming Wi-Fi broadcasts to save power.
@@ -421,6 +488,7 @@ public final class GameActivity extends NativeActivity {
         if (statusWindow != null) statusWindow.dismiss();
         if (touchControls != null) {touchControls.removeCallbacks(updateControlMode);touchControls.releaseAll();}
         if (controlsWindow != null) controlsWindow.dismiss();
+        showFpsOverlay(false);
         super.onPause();
     }
     @Override protected void onResume() {

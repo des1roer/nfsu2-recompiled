@@ -129,6 +129,19 @@
     <string name="option_textures_title">Сжатые текстуры</string>
     <string name="option_textures_auto">Автоматически · GPU при поддержке</string>
     <string name="option_textures_cpu">Преобразование на CPU · совместимость</string>
+    <string name="option_tachometer_title">Тахометр</string>
+    <string name="option_tachometer_bottom">Справа снизу (оригинал)</string>
+    <string name="option_tachometer_raised">Чуть выше</string>
+    <string name="option_tachometer_middle">На середине высоты</string>
+    <string name="option_pad_layout_title">Управление геймпадом</string>
+    <string name="option_pad_layout_port">Как в порте</string>
+    <string name="option_pad_layout_console">Как на консоли · крестовина: карта, SMS, статистика</string>
+    <string name="option_fps_overlay_title">Счётчик FPS</string>
+    <string name="option_fps_overlay_off">Выключен</string>
+    <string name="option_fps_overlay_fps">FPS</string>
+    <string name="option_fps_overlay_full">FPS и мс на кадр</string>
+    <string name="launcher_check_language_missing">Нет файла LANGUAGES/&lt;язык&gt;.bin</string>
+    <string name="launcher_check_region_rows">Регион Европа: нет GLOBAL/GLOBALTEXTURESROW.BIN (с европейского диска)</string>
     <string name="common_close">Закрыть</string>
 
     <string name="game_status_checking_storage">Проверяем внутреннюю память/nfsu2…</string>

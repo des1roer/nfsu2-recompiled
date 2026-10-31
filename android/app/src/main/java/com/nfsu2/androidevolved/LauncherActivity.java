@@ -205,7 +205,15 @@ public final class LauncherActivity extends Activity {
         addCheck(missing.length() == 0 ? getString(R.string.launcher_game_folders) : getString(R.string.launcher_missing_folders, missing), missing.length() == 0, true);
         addCheck(getString(R.string.launcher_widescreen_hud),
                 allowed && new File(root, "scripts/NFSUnderground2.WidescreenFix.dat").isFile(), false);
-        boolean ready = exe && !languages().isEmpty();
+        // Without it the game has no text: JUGAR stays off, so say which file is missing.
+        boolean language = allowed && !languages().isEmpty();
+        if (exe && !language) addCheck(getString(R.string.launcher_check_language_missing), false, true);
+        // The European region loads GLOBAL/GLOBALTEXTURESROW.BIN instead of GLOBALTEXTURESNA.BIN; only
+        // European discs install it, and without it the game cannot load its global textures.
+        boolean region = !"eu".equals(GameOptions.get(this, GameOptions.REGION))
+                || (allowed && fileIgnoringCase(new File(root, "GLOBAL"), "GLOBALTEXTURESROW.BIN"));
+        if (!region) addCheck(getString(R.string.launcher_check_region_rows), false, true);
+        boolean ready = exe && language && region;
         status.setText(!allowed ? getString(R.string.launcher_status_allow_access)
                 : ready ? getString(R.string.launcher_status_game_root) : getString(R.string.launcher_status_copy_files));
         play.setEnabled(ready);
@@ -297,6 +305,13 @@ public final class LauncherActivity extends Activity {
                 });
             }
         });
+    }
+
+    /** The game resolves names without case (gamePath); Android storage does not. */
+    private static boolean fileIgnoringCase(File directory, String name) {
+        String[] names = directory.list();
+        if (names != null) for (String entry : names) if (entry.equalsIgnoreCase(name)) return true;
+        return false;
     }
 
     private void refreshOptions() {
@@ -597,9 +612,13 @@ public final class LauncherActivity extends Activity {
                 .putExtra("frameCap", Integer.parseInt(GameOptions.get(this, GameOptions.FPS)))
                 .putExtra("widescreen", GameOptions.get(this, GameOptions.WIDESCREEN))
                 .putExtra("minimapTop", GameOptions.get(this, GameOptions.MINIMAP).equals("top"))
+                .putExtra("tachometer", GameOptions.tachometerPosition(this))
+                .putExtra("consolePad", GameOptions.get(this, GameOptions.PAD_LAYOUT).equals("console"))
                 .putExtra("backBuffers", Integer.parseInt(GameOptions.get(this, GameOptions.LATENCY)))
                 .putExtra("cpuTextures", GameOptions.get(this, GameOptions.TEXTURES).equals("cpu"))
                 .putExtra("onlineServer", GameOptions.onlineServer(this))
+                .putExtra("region", GameOptions.regionCode(this))
+                .putExtra("fpsOverlay", GameOptions.get(this, GameOptions.FPS_OVERLAY))
                 .putExtra("driverLoader", loader));
     }
 
