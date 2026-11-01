@@ -157,6 +157,7 @@ public final class GameActivity extends NativeActivity {
     private static native void nativeWidescreen(boolean enabled);
     private static native void nativeMinimapRelocate(boolean enabled);
     private static native void nativeCheatCode(String code);
+    private static native void nativeAddCash(int amount);
     private static native void nativeOnlineServer(String host);
     private static native void nativeGamepadConnected(boolean connected);
     private static native void nativeGamepadDevices(int[] ids);
@@ -207,32 +208,42 @@ public final class GameActivity extends NativeActivity {
         dialog.getWindow().setSoftInputMode(android.view.WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE);
     }
     /**
-     * The game's own Press-Start cheat codes (money, tuning parts, bonus cars): typed as real key
-     * presses (nativeCheatCode), not text-field input, since that is what that screen reads.
+     * Money goes straight into the current career's cash (the game's own cash field, applied
+     * between frames). The codes below are the game's built-in Press-Start cheats, typed as
+     * real key presses (nativeCheatCode): the money codes only count for a career created
+     * afterwards, the car codes unlock their cars in Quick Race.
      */
     private void showCheatCodes() {
+        final int[] cashAmounts = {100000, 1000000};
+        int[] cashRes = {R.string.cheat_add_cash_100k, R.string.cheat_add_cash_1m};
         int[] res = {R.string.cheat_ordermebaby, R.string.cheat_regmybank, R.string.cheat_regmebaby,
-                R.string.cheat_coolmoney, R.string.cheat_needperformance1, R.string.cheat_needperformance2,
+                R.string.cheat_needperformance1, R.string.cheat_needperformance2,
                 R.string.cheat_gimmevisual1, R.string.cheat_gimmevisual2, R.string.cheat_opendoors,
                 R.string.cheat_gimmechingy, R.string.cheat_tunejapantuning, R.string.cheat_davidchoeart,
                 R.string.cheat_shinestreetbright, R.string.cheat_wannacapone, R.string.cheat_wantmyd3};
-        String[] codes = {"ordermebaby", "regmybank", "regmebaby", "coolmoney", "needperformance1",
+        String[] codes = {"ordermebaby", "regmybank", "regmebaby", "needperformance1",
                 "needperformance2", "gimmevisual1", "gimmevisual2", "opendoors", "gimmechingy",
                 "tunejapantuning", "davidchoeart", "shinestreetbright", "wannacapone", "wantmyd3"};
-        String[] labels = new String[res.length + 1];
-        for (int i = 0; i < res.length; i++) labels[i] = getString(res[i]);
-        labels[res.length] = getString(R.string.cheats_custom_entry);
+        String[] labels = new String[cashRes.length + res.length + 1];
+        for (int i = 0; i < cashRes.length; i++) labels[i] = getString(cashRes[i]);
+        for (int i = 0; i < res.length; i++) labels[cashRes.length + i] = getString(res[i]);
+        labels[labels.length - 1] = getString(R.string.cheats_custom_entry);
 
         // setMessage() and setItems() on the same builder are mutually exclusive in Android:
         // the message wins and the item list silently never renders. The hint goes into the
         // title instead so the code list actually shows up.
         new AlertDialog.Builder(this).setTitle(getString(R.string.cheats_title) + "\n" + getString(R.string.cheats_hint))
                 .setItems(labels, (dialog, which) -> {
-                    if (which < codes.length) sendCheatCode(codes[which]);
+                    if (which < cashAmounts.length) addCash(cashAmounts[which]);
+                    else if (which < cashAmounts.length + codes.length) sendCheatCode(codes[which - cashAmounts.length]);
                     else showCustomCheatCode();
                 })
                 .setNegativeButton(R.string.common_close, null)
                 .show();
+    }
+    private void addCash(int amount) {
+        nativeAddCash(amount);
+        Toast.makeText(this, getString(R.string.cheats_cash_added, java.text.NumberFormat.getIntegerInstance().format(amount)), Toast.LENGTH_SHORT).show();
     }
     private void showCustomCheatCode() {
         EditText custom = new EditText(this);

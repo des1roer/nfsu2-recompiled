@@ -263,6 +263,47 @@ constexpr uint32_t stackBase = 0x20000000u, stackSize = 16u << 20, tib = 0x21000
 void* ptr(uint32_t va, uint64_t bytes) { return memory->address(va, bytes); }
 uint32_t read32(uint32_t va) { uint32_t v; std::memcpy(&v, ptr(va,4),4); return v; }
 void write32(uint32_t va, uint32_t v) { std::memcpy(ptr(va,4),&v,4); }
+
+// Career cash is one int32: the first field of the player-profile object. The game's own
+// AddCash is `mov edx,[ecx]; mov eax,[esp+4]; add edx,eax; mov [ecx],edx; ret 4` with
+// ecx = &profile, GetCash returns that same dword, purchases subtract from it (clamped at 0),
+// the race-entry fee is compared against it and the Cash_header widget prints it with "%$d".
+// Its address is not a per-build constant here: the money-cheat handler contains
+// `push 1000; mov ecx,<profile>; call AddCash`, and the call target must itself look like
+// AddCash. Either part missing means an unknown build, and nothing is written.
+std::atomic<int32_t> pendingCash{0};
+static uint32_t locateCareerCash(){
+    static uint32_t found=0;static bool searched=false;
+    if(searched)return found;searched=true;
+    const unsigned char lead[]={0x68,0xe8,0x03,0x00,0x00,0xb9};
+    const unsigned char addCash[]={0x8b,0x11,0x8b,0x44,0x24,0x04,0x03,0xd0,0x89,0x11,0xc2,0x04,0x00};
+    const unsigned char* image=static_cast<const unsigned char*>(ptr(imageBase,imageSize));
+    const unsigned char* end=image+imageSize;
+    for(const unsigned char* p=image;;){
+        p=static_cast<const unsigned char*>(memmem(p,size_t(end-p),lead,sizeof lead));
+        if(!p||end-p<15){break;}
+        uint32_t profile;std::memcpy(&profile,p+6,4);
+        if(p[10]==0xe8){
+            int32_t rel;std::memcpy(&rel,p+11,4);
+            uint32_t target=imageBase+uint32_t(p+15-image)+uint32_t(rel);
+            if(target>=imageBase&&target+sizeof addCash<=imageBase+imageSize&&
+               std::memcmp(image+(target-imageBase),addCash,sizeof addCash)==0&&
+               profile>=imageBase&&profile+4<=imageBase+imageSize){found=profile;break;}
+        }
+        ++p;
+    }
+    NFS_RUNTIME_LOG(found?ANDROID_LOG_INFO:ANDROID_LOG_WARN,"NFSU2","Career cash %s%08x",found?"located at ":"not found in this SPEED2.EXE build; cash cheat disabled (",found?found:0u);
+    return found;
+}
+// Runs on the guest thread (from the PeekMessage HLE the main loop polls every frame), so the
+// write lands between frames with the machine held, never mid-purchase.
+void applyPendingCash(){
+    int32_t amount=pendingCash.exchange(0);if(!amount)return;
+    uint32_t cash=locateCareerCash();if(!cash)return;
+    int64_t before=int32_t(read32(cash)),after=std::clamp<int64_t>(before+amount,0,99999999);
+    write32(cash,uint32_t(int32_t(after)));
+    NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Career cash %+d: %lld -> %lld",amount,(long long)before,(long long)after);
+}
 uint32_t arg(uint32_t index) { return read32(g_esp + 4 + index*4); }
 void ret(uint32_t value, uint32_t argc) { g_eax=value; g_esp+=4+argc*4; }
 std::string guestString(uint32_t address) {
@@ -963,10 +1004,11 @@ void setGuestKey(unsigned scan,bool down){if(scan>=256)return;std::lock_guard<st
 // enqueueGuestText): the game's built-in Press-Start cheat codes are plain keyboard input, not
 // text typed into a field, so they need genuine key events. Letters and digits only, matching
 // the scancodes a PC keyboard actually sends; anything else in the string is skipped.
-// Paced on a background thread, not sent as one instant burst: the game likely samples keyboard
-// state once per frame (~19 ms at its usual pace), so a down+up pair posted back to back in the
-// same native call could come and go between two samples and never register, the same way a real
-// key tapped faster than the game polls would be missed.
+// Paced on a background thread rather than one instant burst so a down+up pair can't come and
+// go between two of the game's per-frame keyboard samples. No ENTER afterwards: the cheat
+// table's "activated" flag flips on the last typed character (checked against the real
+// table in the Windows build's memory), and the Press-Start screen's own ENTER handling is
+// unrelated to it.
 void setGuestCheatCode(const std::string& code){
     static const unsigned letters[]={0x1e,0x30,0x2e,0x20,0x12,0x21,0x22,0x23,0x17,0x24,0x25,0x26,0x32,0x31,0x18,0x19,0x10,0x13,0x1f,0x14,0x16,0x2f,0x11,0x2d,0x15,0x2c};
     NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Cheat code \"%s\": typing %zu characters, activeWindow=%08x",code.c_str(),code.size(),activeWindow);
@@ -982,23 +1024,9 @@ void setGuestCheatCode(const std::string& code){
             setGuestKey(scan,false);
             std::this_thread::sleep_for(std::chrono::milliseconds(80));
         }
-        // Confirmed by diagnostics: ENTER alone (nothing typed) advances the screen just fine,
-        // but ENTER after typing anything - cheat code or garbage - never does, no matter how
-        // long the pause or how many times it's retried. Backing out what was typed one BACKSPACE
-        // per character first did not fix it either (still confirmed stuck afterward), so whatever
-        // gates "ENTER advances" isn't simply "the buffer is empty". Try ESCAPE instead: Win32 text
-        // entry conventionally treats it as "cancel and exit text-entry mode" outright, rather than
-        // relying on the buffer being walked back to empty one character at a time.
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        setGuestKey(0x1,true);
-        std::this_thread::sleep_for(std::chrono::milliseconds(80));
-        setGuestKey(0x1,false);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-        setGuestKey(0x1c,true);
-        std::this_thread::sleep_for(std::chrono::milliseconds(150));
-        setGuestKey(0x1c,false);
     }).detach();
 }
+void queueGuestCash(int32_t amount){pendingCash.fetch_add(amount);}
 void clearGuestInput(){std::lock_guard<std::mutex> lock(inputMutex);for(unsigned scan=0;scan<256;++scan)if(inputKeys[scan]){recordInputKey(scan,false);enqueueGuestKey(scan,false);}inputKeys.fill(0);inputMouseButtons.fill(0);inputMouseX=inputMouseY=inputMouseZ=0;}
 void setGuestPointer(float x,float y,int phase){
     guestPointerX=std::clamp(x,0.f,1.f);guestPointerY=std::clamp(y,0.f,1.f);

@@ -342,6 +342,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nat
 }
 extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeWidescreen(JNIEnv*,jclass,jboolean enabled){setGuestWidescreen(enabled==JNI_TRUE);}
 extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeMinimapRelocate(JNIEnv*,jclass,jboolean enabled){setGuestMinimapRelocate(enabled==JNI_TRUE);}
+extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeAddCash(JNIEnv*,jclass,jint amount){queueGuestCash(int32_t(amount));}
 extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeCheatCode(JNIEnv* env,jclass,jstring code){
     const char* text=env->GetStringUTFChars(code,nullptr);setGuestCheatCode(text?text:"");env->ReleaseStringUTFChars(code,text);
 }

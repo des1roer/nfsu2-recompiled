@@ -9,6 +9,7 @@ void setGuestPaused(bool paused);
 void setGuestDisplaySize(unsigned width,unsigned height);
 void setGuestKey(unsigned scan,bool down);
 void setGuestCheatCode(const std::string& code);
+void queueGuestCash(int32_t amount);
 void clearGuestInput();
 bool guestDrivingControls();
 // Physical gamepad seen by the game as a DirectInput joystick: axes X, Y, Z
