@@ -322,6 +322,38 @@ static uint32_t locateCheatTable(){
     NFS_RUNTIME_LOG(found?ANDROID_LOG_INFO:ANDROID_LOG_WARN,"NFSU2","Cheat table %s%08x",found?"located at ":"not found in this SPEED2.EXE build; direct cheat activation disabled (",found?found:0u);
     return found;
 }
+// The shop has two "everything is available" switches of its own, one byte each: the
+// performance-parts gate opens with `mov al,[flag]; test al,al; jne ->1` before it even
+// looks at the part, and the visual-parts gate does the same with its own byte. Both are
+// only ever read by the game, never written, so a part-tier cheat sets the matching one
+// and keeps it set every frame. They are found through those gate prologues, not by address.
+static uint32_t locateUnlockFlag(bool performance){
+    static uint32_t found[2]={0,0};static bool searched[2]={false,false};
+    unsigned k=performance?1:0;if(searched[k])return found[k];searched[k]=true;
+    const unsigned char* image=static_cast<const unsigned char*>(ptr(imageBase,imageSize));
+    const unsigned char* end=image+imageSize;
+    // performance: 51 A0 <addr> 84 C0 74 04 B0 01 59 C3 ; visual: A0 <addr> 84 C0 74 05 B0 01 C2 04 00
+    const unsigned char leadP[]={0x51,0xa0},tailP[]={0x84,0xc0,0x74,0x04,0xb0,0x01,0x59,0xc3};
+    const unsigned char leadV[]={0xa0},tailV[]={0x84,0xc0,0x74,0x05,0xb0,0x01,0xc2,0x04,0x00};
+    const unsigned char* lead=performance?leadP:leadV;size_t leadLen=performance?sizeof leadP:sizeof leadV;
+    const unsigned char* tail=performance?tailP:tailV;size_t tailLen=performance?sizeof tailP:sizeof tailV;
+    for(const unsigned char* p=image;;){
+        p=static_cast<const unsigned char*>(memmem(p,size_t(end-p),lead,leadLen));
+        if(!p||size_t(end-p)<leadLen+4+tailLen)break;
+        if(std::memcmp(p+leadLen+4,tail,tailLen)==0){
+            uint32_t addr;std::memcpy(&addr,p+leadLen,4);
+            if(addr>=imageBase&&addr+1<=imageBase+imageSize){found[k]=addr;break;}
+        }
+        ++p;
+    }
+    NFS_RUNTIME_LOG(found[k]?ANDROID_LOG_INFO:ANDROID_LOG_WARN,"NFSU2","%s-parts unlock flag %s%08x",performance?"Performance":"Visual",found[k]?"located at ":"not found in this SPEED2.EXE build (",found[k]?found[k]:0u);
+    return found[k];
+}
+std::atomic<bool> unlockPerformanceParts{false},unlockVisualParts{false};
+static void applyUnlockFlags(){
+    if(unlockPerformanceParts.load()){uint32_t a=locateUnlockFlag(true);if(a)*static_cast<unsigned char*>(ptr(a,1))=1;}
+    if(unlockVisualParts.load()){uint32_t a=locateUnlockFlag(false);if(a)*static_cast<unsigned char*>(ptr(a,1))=1;}
+}
 static void applyPendingCheatCodes(){
     std::vector<std::string> names;
     {std::lock_guard<std::mutex> lock(pendingCheatsMutex);names.swap(pendingCheats);}
@@ -345,6 +377,8 @@ static void applyPendingCheatCodes(){
             // carry id 2, so the tier-1 code could never match and the tier-2 code only
             // unlocked tier 2. Give the entry the tier its name says, and switch on every
             // lower tier of the same kind with it, which is what the code promises.
+            if(kind==2)unlockPerformanceParts=true;
+            if(kind==1)unlockVisualParts=true;
             if(kind==1||kind==2){
                 unsigned tier=unsigned(name.back()-'0');if(tier<1||tier>3)tier=id;
                 write32(entry+0x24,tier);
