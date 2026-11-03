@@ -158,6 +158,7 @@ public final class GameActivity extends NativeActivity {
     private static native void nativeMinimapRelocate(boolean enabled);
     private static native void nativeCheatCode(String code);
     private static native void nativeAddCash(int amount);
+    private static native void nativeActivateCheat(String code);
     private static native void nativeOnlineServer(String host);
     private static native void nativeGamepadConnected(boolean connected);
     private static native void nativeGamepadDevices(int[] ids);
@@ -209,9 +210,10 @@ public final class GameActivity extends NativeActivity {
     }
     /**
      * Money goes straight into the current career's cash (the game's own cash field, applied
-     * between frames). The codes below are the game's built-in Press-Start cheats, typed as
-     * real key presses (nativeCheatCode): the money codes only count for a career created
-     * afterwards, the car codes unlock their cars in Quick Race.
+     * between frames). The codes are the game's own 20 built-in cheats: tapping one sets its
+     * "activated" flag in the game's cheat table directly (nativeActivateCheat), which is all
+     * that typing it on the Press Start screen does, so it works at any point in the game.
+     * A custom code is still typed as real key presses for anything not in that table.
      */
     private void showCheatCodes() {
         final int[] cashAmounts = {100000, 1000000};
@@ -220,10 +222,13 @@ public final class GameActivity extends NativeActivity {
                 R.string.cheat_needperformance1, R.string.cheat_needperformance2,
                 R.string.cheat_gimmevisual1, R.string.cheat_gimmevisual2, R.string.cheat_opendoors,
                 R.string.cheat_gimmechingy, R.string.cheat_tunejapantuning, R.string.cheat_davidchoeart,
-                R.string.cheat_shinestreetbright, R.string.cheat_wannacapone, R.string.cheat_wantmyd3};
+                R.string.cheat_shinestreetbright, R.string.cheat_wannacapone, R.string.cheat_wantmyd3,
+                R.string.cheat_yodogg, R.string.cheat_goforoldspice, R.string.cheat_gottaedge,
+                R.string.cheat_gottahavebk, R.string.cheat_gotmycingular, R.string.cheat_needmybestbuy};
         String[] codes = {"ordermebaby", "regmybank", "regmebaby", "needperformance1",
                 "needperformance2", "gimmevisual1", "gimmevisual2", "opendoors", "gimmechingy",
-                "tunejapantuning", "davidchoeart", "shinestreetbright", "wannacapone", "wantmyd3"};
+                "tunejapantuning", "davidchoeart", "shinestreetbright", "wannacapone", "wantmyd3",
+                "yodogg", "goforoldspice", "gottaedge", "gottahavebk", "gotmycingular", "needmybestbuy"};
         String[] labels = new String[cashRes.length + res.length + 1];
         for (int i = 0; i < cashRes.length; i++) labels[i] = getString(cashRes[i]);
         for (int i = 0; i < res.length; i++) labels[cashRes.length + i] = getString(res[i]);
@@ -235,11 +240,15 @@ public final class GameActivity extends NativeActivity {
         new AlertDialog.Builder(this).setTitle(getString(R.string.cheats_title) + "\n" + getString(R.string.cheats_hint))
                 .setItems(labels, (dialog, which) -> {
                     if (which < cashAmounts.length) addCash(cashAmounts[which]);
-                    else if (which < cashAmounts.length + codes.length) sendCheatCode(codes[which - cashAmounts.length]);
+                    else if (which < cashAmounts.length + codes.length) activateCheat(codes[which - cashAmounts.length]);
                     else showCustomCheatCode();
                 })
                 .setNegativeButton(R.string.common_close, null)
                 .show();
+    }
+    private void activateCheat(String code) {
+        nativeActivateCheat(code);
+        Toast.makeText(this, getString(R.string.cheats_activated, code), Toast.LENGTH_SHORT).show();
     }
     private void addCash(int amount) {
         nativeAddCash(amount);

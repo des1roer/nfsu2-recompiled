@@ -297,6 +297,58 @@ static uint32_t locateCareerCash(){
 }
 // Runs on the guest thread (from the PeekMessage HLE the main loop polls every frame), so the
 // write lands between frames with the machine held, never mid-purchase.
+// The game's 20 built-in cheat codes live in one static table (20 entries of 0x34 bytes: the
+// code's name inline at +0, kind at +0x20, id at +0x24, "activated" byte at +0x30, "available
+// on this build" byte at +0x32). Typing a code on the Press-Start screen does nothing more
+// than set that byte (checked against the live table in the Windows build), and everything the
+// cheats unlock queries it later, so setting it directly works at any point in the game. The
+// table is found through its constructor (`mov [esi+0xc], <table>; mov [esi+0x10], 20`).
+std::mutex pendingCheatsMutex;std::vector<std::string> pendingCheats;
+static uint32_t locateCheatTable(){
+    static uint32_t found=0;static bool searched=false;
+    if(searched)return found;searched=true;
+    const unsigned char lead[]={0xc7,0x46,0x0c},tail[]={0xc7,0x46,0x10,0x14,0x00,0x00,0x00};
+    const unsigned char* image=static_cast<const unsigned char*>(ptr(imageBase,imageSize));
+    const unsigned char* end=image+imageSize;
+    for(const unsigned char* p=image;;){
+        p=static_cast<const unsigned char*>(memmem(p,size_t(end-p),lead,sizeof lead));
+        if(!p||end-p<14)break;
+        if(std::memcmp(p+7,tail,sizeof tail)==0){
+            uint32_t table;std::memcpy(&table,p+3,4);
+            if(table>=imageBase&&table+20*0x34<=imageBase+imageSize){found=table;break;}
+        }
+        ++p;
+    }
+    NFS_RUNTIME_LOG(found?ANDROID_LOG_INFO:ANDROID_LOG_WARN,"NFSU2","Cheat table %s%08x",found?"located at ":"not found in this SPEED2.EXE build; direct cheat activation disabled (",found?found:0u);
+    return found;
+}
+static void applyPendingCheatCodes(){
+    std::vector<std::string> names;
+    {std::lock_guard<std::mutex> lock(pendingCheatsMutex);names.swap(pendingCheats);}
+    if(names.empty())return;
+    uint32_t table=locateCheatTable();if(!table)return;
+    for(const std::string& name:names){
+        bool matched=false;
+        for(unsigned i=0;i<20;++i){
+            uint32_t entry=table+i*0x34;unsigned char* e=static_cast<unsigned char*>(ptr(entry,0x34));
+            size_t n=0;while(n<0x20&&e[n])++n;
+            if(n!=name.size())continue;
+            bool same=true;for(size_t k=0;k<n&&same;++k)same=std::tolower(e[k])==std::tolower((unsigned char)name[k]);
+            if(!same)continue;
+            matched=true;
+            uint32_t kind=read32(entry+0x20),id=read32(entry+0x24);
+            if(!e[0x32]){NFS_RUNTIME_LOG(ANDROID_LOG_WARN,"NFSU2","Cheat \"%s\" is not available on this game build",name.c_str());break;}
+            e[0x30]=1;
+            // The money kind also pays out on activation, like the typed path does (kind 5:
+            // id 2 = $200, id 4 = $1000; id 3 only counts for a career created afterwards).
+            if(kind==5&&id==2)pendingCash.fetch_add(200);
+            if(kind==5&&id==4)pendingCash.fetch_add(1000);
+            NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Cheat \"%s\" activated (entry %u, kind %u, id %u)",name.c_str(),i,kind,id);
+            break;
+        }
+        if(!matched)NFS_RUNTIME_LOG(ANDROID_LOG_WARN,"NFSU2","Cheat \"%s\" is not in the game's cheat table",name.c_str());
+    }
+}
 void applyPendingCash(){
     int32_t amount=pendingCash.exchange(0);if(!amount)return;
     uint32_t cash=locateCareerCash();if(!cash)return;
@@ -1027,6 +1079,7 @@ void setGuestCheatCode(const std::string& code){
     }).detach();
 }
 void queueGuestCash(int32_t amount){pendingCash.fetch_add(amount);}
+void queueGuestCheat(const std::string& name){std::lock_guard<std::mutex> lock(pendingCheatsMutex);pendingCheats.push_back(name);}
 void clearGuestInput(){std::lock_guard<std::mutex> lock(inputMutex);for(unsigned scan=0;scan<256;++scan)if(inputKeys[scan]){recordInputKey(scan,false);enqueueGuestKey(scan,false);}inputKeys.fill(0);inputMouseButtons.fill(0);inputMouseX=inputMouseY=inputMouseZ=0;}
 void setGuestPointer(float x,float y,int phase){
     guestPointerX=std::clamp(x,0.f,1.f);guestPointerY=std::clamp(y,0.f,1.f);
