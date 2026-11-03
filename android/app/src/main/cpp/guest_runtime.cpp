@@ -339,6 +339,23 @@ static void applyPendingCheatCodes(){
             uint32_t kind=read32(entry+0x20),id=read32(entry+0x24);
             if(!e[0x32]){NFS_RUNTIME_LOG(ANDROID_LOG_WARN,"NFSU2","Cheat \"%s\" is not available on this game build",name.c_str());break;}
             e[0x30]=1;
+            // Part-tier codes (kind 1 = visual, 2 = performance): the shop asks
+            // IsCheatActive(kind, tier) for each part's own tier and wants an activated entry
+            // whose id equals that tier. In this exe's table both "...1" and "...2" entries
+            // carry id 2, so the tier-1 code could never match and the tier-2 code only
+            // unlocked tier 2. Give the entry the tier its name says, and switch on every
+            // lower tier of the same kind with it, which is what the code promises.
+            if(kind==1||kind==2){
+                unsigned tier=unsigned(name.back()-'0');if(tier<1||tier>3)tier=id;
+                write32(entry+0x24,tier);
+                for(unsigned j=0;j<20;++j){
+                    uint32_t other=table+j*0x34;unsigned char* o=static_cast<unsigned char*>(ptr(other,0x34));
+                    size_t m=0;while(m<0x20&&o[m])++m;
+                    if(read32(other+0x20)!=kind||!o[0x32]||m==0)continue;
+                    unsigned t=unsigned(o[m-1]-'0');if(t<1||t>3)continue;
+                    if(t<=tier){write32(other+0x24,t);o[0x30]=1;}
+                }
+            }
             // The money kind also pays out on activation, like the typed path does (kind 5:
             // id 2 = $200, id 4 = $1000; id 3 only counts for a career created afterwards).
             if(kind==5&&id==2)pendingCash.fetch_add(200);
