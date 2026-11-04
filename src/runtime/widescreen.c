@@ -130,15 +130,60 @@ static void minimap_relocate_env(void) {
     if (dx_env) s_minimap_relocate_dx = (float)atof(dx_env);
     if (dy_env) s_minimap_relocate_dy = (float)atof(dy_env);
 }
-static void relocate_minimap_original(float* x, float* y) {
-    int ix = (int)floorf(*x), iy = (int)floorf(*y);
-    if (!((ix == -223 && (iy == 70 || iy == 71 || iy == 142 || iy == 143)) || (ix == -143 && iy == 196))) return;
-    if (!s_minimap_relocate_env_read) minimap_relocate_env();
-    *x += s_minimap_relocate_dx; *y += s_minimap_relocate_dy;
+/* Besides the minimap, any HUD element can be nudged from
+ * <game_root>/scripts/HudRelocate.txt: one rule per line, "X Y DX DY" --
+ * an element whose original 4:3 position (as the game stores it, see the
+ * dump below) floors to (X, Y) gets moved by (DX, DY). Lines starting with #
+ * are comments. Read once per launch, together with MinimapRelocate.txt. */
+typedef struct { int x, y; float dx, dy; } HudRule;
+static HudRule s_hud_rules[64];
+static int s_hud_rule_count;
+static void hud_relocate_rules_read(void) {
+    char path[1024]; FILE* f; char line[256];
+    if (!s_minimap_relocate_root[0]) return;
+    snprintf(path, sizeof path, "%s/scripts/HudRelocate.txt", s_minimap_relocate_root);
+    f = fopen(path, "r");
+    if (!f) return;
+    while (fgets(line, sizeof line, f) && s_hud_rule_count < 64) {
+        float x, y, dx, dy;
+        if (line[0] == '#') continue;
+        if (sscanf(line, "%f %f %f %f", &x, &y, &dx, &dy) == 4) {
+            HudRule* r = &s_hud_rules[s_hud_rule_count++];
+            r->x = (int)floorf(x); r->y = (int)floorf(y); r->dx = dx; r->dy = dy;
+        }
+    }
+    fclose(f);
 }
-static void relocate_mem_pair_minimap_only(uint32_t vx, uint32_t vy) {
+/* Every distinct HUD position seen goes to the log once (NFSU2_HUD_DUMP on the
+ * desktop, always on Android): that is how a player finds the X Y of the
+ * element they want to move. */
+#if defined(__ANDROID__)
+#include <android/log.h>
+#define HUD_DUMP_LOG(...) __android_log_print(ANDROID_LOG_INFO, "NFSU2", __VA_ARGS__)
+#else
+#define HUD_DUMP_LOG(...) do { if (getenv("NFSU2_HUD_DUMP")) { printf(__VA_ARGS__); printf("\n"); fflush(stdout); } } while (0)
+#endif
+static void hud_dump(int site, int ix, int iy) {
+    static int seen_x[256], seen_y[256], seen_site[256]; static int count;
+    int k;
+    for (k = 0; k < count; ++k) if (seen_x[k] == ix && seen_y[k] == iy && seen_site[k] == site) return;
+    if (count >= 256) return;
+    seen_x[count] = ix; seen_y[count] = iy; seen_site[count] = site; ++count;
+    HUD_DUMP_LOG("HUD element #%d at %d %d (%s)", count, ix, iy, site == 0 ? "hud" : "blip");
+}
+static void relocate_minimap_original(int site, float* x, float* y) {
+    int ix = (int)floorf(*x), iy = (int)floorf(*y), k;
+    if (!s_minimap_relocate_env_read) { minimap_relocate_env(); hud_relocate_rules_read(); }
+    hud_dump(site, ix, iy);
+    if ((ix == -223 && (iy == 70 || iy == 71 || iy == 142 || iy == 143)) || (ix == -143 && iy == 196)) {
+        *x += s_minimap_relocate_dx; *y += s_minimap_relocate_dy; return;
+    }
+    for (k = 0; k < s_hud_rule_count; ++k)
+        if (s_hud_rules[k].x == ix && s_hud_rules[k].y == iy) { *x += s_hud_rules[k].dx; *y += s_hud_rules[k].dy; return; }
+}
+static void relocate_mem_pair_minimap_only(int site, uint32_t vx, uint32_t vy) {
     float x = rdf(vx), y = rdf(vy);
-    relocate_minimap_original(&x, &y);
+    relocate_minimap_original(site, &x, &y);
     wrf(vx, x); wrf(vy, y);
 }
 
@@ -254,12 +299,12 @@ void recomp_hook(uint32_t va) {
     /* HudHook: the element position just stored from ecx/edx. */
     case HUD_HOOK:
         if (s_enabled) adjust_mem_pair(g_esp + 0x60, g_esp + 0x64);
-        else if (s_minimap_relocate_mode) relocate_mem_pair_minimap_only(g_esp + 0x60, g_esp + 0x64);
+        else if (s_minimap_relocate_mode) relocate_mem_pair_minimap_only(0, g_esp + 0x60, g_esp + 0x64);
         break;
     /* BlipsHook: radar blips, before `mov [edx], ecx`. */
     case BLIPS_HOOK:
         if (s_enabled) adjust_mem_pair(g_ebx + 0x1C, g_ebx + 0x20);
-        else if (s_minimap_relocate_mode) relocate_mem_pair_minimap_only(g_ebx + 0x1C, g_ebx + 0x20);
+        else if (s_minimap_relocate_mode) relocate_mem_pair_minimap_only(1, g_ebx + 0x1C, g_ebx + 0x20);
         g_ecx = MEM32(g_ebx + 0x1C);
         break;
     /* HudHook2: ecx = adjusted X of [esi+1C]/[esi+20]. */
