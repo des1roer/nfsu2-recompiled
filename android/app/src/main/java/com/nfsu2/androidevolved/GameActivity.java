@@ -168,6 +168,7 @@ public final class GameActivity extends NativeActivity {
     private static native float nativeSpeed();
     private static native void nativeWidescreen(boolean enabled);
     private static native void nativeMinimapRelocate(boolean enabled);
+    private static native void nativeSkipIntro(boolean enabled);
     private static native void nativeCheatCode(String code);
     private static native void nativeAddCash(int amount);
     private static native void nativeActivateCheat(String code);
@@ -362,6 +363,7 @@ public final class GameActivity extends NativeActivity {
         if (widescreen == null) widescreen = GameOptions.get(this, GameOptions.WIDESCREEN);
         nativeWidescreen(widescreen.equals("on"));
         nativeMinimapRelocate(widescreen.equals("off_minimap"));
+        nativeSkipIntro(launch.getBooleanExtra("skipIntro", GameOptions.get(this, GameOptions.INTRO).equals("skip")));
         String server = launch.getStringExtra("onlineServer");
         nativeOnlineServer(GameOptions.validServer(server) ? server : GameOptions.onlineServer(this));
         minimapTop = launch.getBooleanExtra("minimapTop", GameOptions.get(this, GameOptions.MINIMAP).equals("top"));

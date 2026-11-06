@@ -191,6 +191,7 @@ std::string hostGameRoot;
 std::string guestLanguage="English UK";
 bool guestWidescreen=true;
 bool guestMinimapRelocate=false;
+bool guestSkipIntro=false;
 std::atomic<bool> stopRequested{false};
 std::atomic<bool> guestPaused{false};
 std::chrono::steady_clock::time_point bootDeadline;
@@ -1414,6 +1415,7 @@ void typeGuestText(const std::vector<uint32_t>& characters){enqueueGuestText(cha
 void setGuestOnlineServer(const std::string& host){std::lock_guard<MachineMutex> lock(machine);if(!memory&&!host.empty())onlineServer=host;}
 void setGuestWidescreen(bool enabled){std::lock_guard<MachineMutex> lock(machine);if(!memory)guestWidescreen=enabled;}
 void setGuestMinimapRelocate(bool enabled){std::lock_guard<MachineMutex> lock(machine);if(!memory)guestMinimapRelocate=enabled;}
+void setGuestSkipIntro(bool enabled){std::lock_guard<MachineMutex> lock(machine);if(!memory)guestSkipIntro=enabled;}
 void setGuestLanguage(const char* language){
     std::lock_guard<MachineMutex> lock(machine);if(memory)return;
     for(const char* known:{"Spanish","English UK","French","German","Italian","Dutch","Swedish","Danish","Japanese","Korean","Chinese (Traditional)","Thai"})

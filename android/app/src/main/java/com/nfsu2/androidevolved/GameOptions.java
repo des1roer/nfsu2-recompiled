@@ -38,7 +38,7 @@ final class GameOptions {
     }
 
     static final String RESOLUTION = "resolution", FPS = "fps", WIDESCREEN = "widescreen", LATENCY = "latency",
-            TEXTURES = "textures", MINIMAP = "minimap", LANGUAGE = "language", REGION = "region", FPS_OVERLAY = "fps_overlay", TACHOMETER = "tachometer", PAD_LAYOUT = "pad_layout";
+            TEXTURES = "textures", MINIMAP = "minimap", LANGUAGE = "language", REGION = "region", FPS_OVERLAY = "fps_overlay", TACHOMETER = "tachometer", PAD_LAYOUT = "pad_layout", INTRO = "intro";
 
     static final Option[] ALL = {
             new Option(RESOLUTION, R.string.option_resolution_title, "75",
@@ -60,6 +60,9 @@ final class GameOptions {
                     new String[] {"bottom", "raised", "middle"},
                     new int[] {R.string.option_tachometer_bottom, R.string.option_tachometer_raised,
                             R.string.option_tachometer_middle}),
+            new Option(INTRO, R.string.option_intro_title, "skip",
+                    new String[] {"skip", "play"},
+                    new int[] {R.string.option_intro_skip, R.string.option_intro_play}),
             new Option(PAD_LAYOUT, R.string.option_pad_layout_title, "port",
                     new String[] {"port", "console"},
                     new int[] {R.string.option_pad_layout_port, R.string.option_pad_layout_console}),

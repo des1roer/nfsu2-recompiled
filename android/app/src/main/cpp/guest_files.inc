@@ -26,10 +26,25 @@ std::vector<std::string> languageSuffixes(){
     if(language=="danish")return {"_da","_dk"};
     return {};
 }
+// The start-up sequence is four movies the game plays back to back before the Press
+// Start screen: ealogo_<lang>, THX_logo, PSA_<lang> (none of them skippable, as in the
+// original) and FMVOpening. With the launcher's "Intro" option set to skip, each of them
+// opens MOVIES/blank.vp6 instead: the game's own one-frame movie, which it already plays
+// first thing at start-up, so the player handles it and the sequence just runs through.
+bool introMovie(const std::string& stem){
+    return stem.rfind("ealogo",0)==0||stem=="thx_logo"||stem.rfind("psa",0)==0||stem=="fmvopening";
+}
 std::filesystem::path localizedGamePath(const std::filesystem::path& relative){
     std::error_code error;
     auto base=resolveIgnoringCase(std::filesystem::path(hostGameRoot),relative);
     auto parent=lower(relative.parent_path().filename().string()),file=lower(relative.filename().string());
+    if(guestSkipIntro&&parent=="movies"&&lower(relative.extension().string())==".vp6"&&introMovie(lower(relative.stem().string()))){
+        auto blank=resolveIgnoringCase(base.parent_path(),std::filesystem::path("blank.vp6"));
+        if(std::filesystem::is_regular_file(blank,error)){
+            NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Intro skipped: %s -> blank.vp6",file.c_str());
+            return blank;
+        }
+    }
     // Movies and the speech archive (sdat.viv holds one language's voices) have
     // per-language copies on European discs: name_sp.vp6, sdat_sp.viv next to the original.
     if((parent=="movies"&&lower(relative.extension().string())==".vp6")||file=="sdat.viv")

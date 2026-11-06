@@ -133,6 +133,9 @@
     <string name="option_tachometer_bottom">Справа снизу (оригинал)</string>
     <string name="option_tachometer_raised">Чуть выше</string>
     <string name="option_tachometer_middle">На середине высоты</string>
+    <string name="option_intro_title">Заставки</string>
+    <string name="option_intro_skip">Пропускать · сразу к Press Start</string>
+    <string name="option_intro_play">Показывать логотипы EA, THX, PSA и вступление</string>
     <string name="option_pad_layout_title">Управление геймпадом</string>
     <string name="option_pad_layout_port">Как в порте</string>
     <string name="option_pad_layout_console">Как на консоли · крестовина: карта, SMS, статистика</string>

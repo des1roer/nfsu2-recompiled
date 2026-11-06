@@ -611,6 +611,7 @@ public final class LauncherActivity extends Activity {
                 .putExtra("renderWidth", size[0]).putExtra("renderHeight", size[1])
                 .putExtra("frameCap", Integer.parseInt(GameOptions.get(this, GameOptions.FPS)))
                 .putExtra("widescreen", GameOptions.get(this, GameOptions.WIDESCREEN))
+                .putExtra("skipIntro", GameOptions.get(this, GameOptions.INTRO).equals("skip"))
                 .putExtra("minimapTop", GameOptions.get(this, GameOptions.MINIMAP).equals("top"))
                 .putExtra("tachometer", GameOptions.tachometerPosition(this))
                 .putExtra("consolePad", GameOptions.get(this, GameOptions.PAD_LAYOUT).equals("console"))

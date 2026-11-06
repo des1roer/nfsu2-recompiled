@@ -28,6 +28,8 @@ void setGuestPointer(float x,float y,int phase);
 /** Posts WM_CHAR messages (the game's text fields read those); 8 is backspace. */
 void typeGuestText(const std::vector<uint32_t>& characters);
 void setGuestLanguage(const char* language);
+// Launcher option, before the guest boots: the start-up logos and opening movie play as blank.vp6.
+void setGuestSkipIntro(bool enabled);
 void setGuestResolution(unsigned width,unsigned height);
 void setGuestFrameLimit(unsigned framesPerSecond);
 // Launcher option, before the guest boots: -1 keeps the game's region, 0 North America, 1 Europe.

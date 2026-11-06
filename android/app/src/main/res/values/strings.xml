@@ -133,6 +133,9 @@
     <string name="option_tachometer_bottom">Bottom right (original)</string>
     <string name="option_tachometer_raised">A little higher</string>
     <string name="option_tachometer_middle">Half way up</string>
+    <string name="option_intro_title">Intro movies</string>
+    <string name="option_intro_skip">Skip · straight to Press Start</string>
+    <string name="option_intro_play">Play EA, THX, PSA logos and the opening</string>
     <string name="option_pad_layout_title">Gamepad controls</string>
     <string name="option_pad_layout_port">The port\'s own</string>
     <string name="option_pad_layout_console">Console-like · D-pad: map, SMS, stats</string>
