@@ -175,7 +175,12 @@ static void hud_relocate_rules_read(void) {
  * element they want to move. */
 #if defined(__ANDROID__)
 #include <android/log.h>
-#define HUD_DUMP_LOG(...) __android_log_print(ANDROID_LOG_INFO, "NFSU2", __VA_ARGS__)
+/* nfsRuntimeLog (game_log.h, C++) also writes to the game's persistent
+ * files/game.log, included in the launcher's diagnostics zip -- logcat alone
+ * is gone once the process dies or the phone reboots, which is normally how
+ * a player would otherwise read off these element positions. */
+extern int nfsRuntimeLog(int priority, const char* tag, const char* format, ...);
+#define HUD_DUMP_LOG(...) nfsRuntimeLog(ANDROID_LOG_INFO, "NFSU2", __VA_ARGS__)
 #else
 #define HUD_DUMP_LOG(...) do { if (getenv("NFSU2_HUD_DUMP")) { printf(__VA_ARGS__); printf("\n"); fflush(stdout); } } while (0)
 #endif
