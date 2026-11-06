@@ -41,6 +41,8 @@ public final class GameActivity extends NativeActivity {
     private boolean requested;
     private boolean foreground;
     private TextView status;
+    private TextView speed;
+    private PopupWindow speedWindow;
     private PopupWindow statusWindow;
     private PopupWindow controlsWindow;
     private RacingControlsView touchControls;
@@ -140,6 +142,14 @@ public final class GameActivity extends NativeActivity {
         if(touchControls!=null)touchControls.setGamepadConnected(connected);
         nativeGamepadConnected(connected);
     }
+    private final Runnable updateSpeed = new Runnable() {
+        @Override public void run() {
+            if(!foreground||speed==null)return;
+            float value=nativeSpeed();
+            speed.setText(value>=0?String.format(java.util.Locale.ROOT,"%.0f км/ч",value):"");
+            speed.postDelayed(this,250);
+        }
+    };
     private final Runnable updateControlMode = new Runnable() {
         @Override public void run() {
             if(!foreground||touchControls==null)return;
@@ -155,6 +165,7 @@ public final class GameActivity extends NativeActivity {
     private static native void nativeLanguage(String language);
     private static native void nativeResolution(int width, int height);
     private static native void nativeFrameLimit(int framesPerSecond);
+    private static native float nativeSpeed();
     private static native void nativeWidescreen(boolean enabled);
     private static native void nativeMinimapRelocate(boolean enabled);
     private static native void nativeCheatCode(String code);
@@ -202,8 +213,8 @@ public final class GameActivity extends NativeActivity {
     private void showFpsOverlay(boolean show) {
         if (fpsWindow == null) return;
         if (show && !fpsWindow.isShowing()) {
-            // Top centre: the top-right corner holds the touch layout and settings buttons.
-            fpsWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, dp(8));
+            // Top centre under the speed: the top-right corner holds the layout and settings buttons.
+            fpsWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, dp(48));
             fpsHandler.removeCallbacks(fpsUpdate);
             fpsHandler.post(fpsUpdate);
         } else if (!show) {
@@ -388,6 +399,16 @@ public final class GameActivity extends NativeActivity {
         statusWindow = new PopupWindow(status, ViewGroup.LayoutParams.WRAP_CONTENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT, false);
         statusWindow.setTouchable(false);
+        // Speed at the top centre: the HUD's own km/h digits sit under the gear
+        // buttons. Its own popup surface like the status text.
+        speed = new TextView(this);
+        speed.setTextColor(Color.WHITE);
+        speed.setShadowLayer(4, 0, 0, Color.BLACK);
+        speed.setTextSize(22);
+        speed.setTypeface(null, android.graphics.Typeface.BOLD);
+        speed.setPadding(12, 4, 12, 4);
+        speedWindow = new PopupWindow(speed, ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT, false);
+        speedWindow.setTouchable(false);
         touchControls = new RacingControlsView(this, this::setTouchKey, this::showTextInput,this::showTiltOptions,this::showFrameLimitOptions,this::showCheatCodes);
         touchControls.setPointer(GameActivity::nativePointer);
         controlsWindow = new PopupWindow(touchControls, ViewGroup.LayoutParams.MATCH_PARENT,
@@ -467,6 +488,9 @@ public final class GameActivity extends NativeActivity {
         }
         // After the touch controls, so the counter is drawn above them.
         if (focused && foreground) showFpsOverlay(true);
+        if (focused && foreground && speedWindow != null && !speedWindow.isShowing()) {
+            speedWindow.showAtLocation(getWindow().getDecorView(), Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, dp(6));
+        }
     }
     // LAN games announce and discover themselves with UDP broadcasts on port 9999;
     // without this lock many devices drop incoming Wi-Fi broadcasts to save power.
@@ -489,6 +513,8 @@ public final class GameActivity extends NativeActivity {
         if (touchControls != null) {touchControls.removeCallbacks(updateControlMode);touchControls.releaseAll();}
         if (controlsWindow != null) controlsWindow.dismiss();
         showFpsOverlay(false);
+        if (speedWindow != null) speedWindow.dismiss();
+        if (speed != null) speed.removeCallbacks(updateSpeed);
         super.onPause();
     }
     @Override protected void onResume() {
@@ -498,6 +524,7 @@ public final class GameActivity extends NativeActivity {
         updateTiltSensor();
         if(inputManager!=null){inputManager.registerInputDeviceListener(gamepadListener,null);updateGamepads();}
         if(touchControls!=null) {touchControls.removeCallbacks(updateControlMode);touchControls.post(updateControlMode);}
+        if(speed!=null) {speed.removeCallbacks(updateSpeed);speed.post(updateSpeed);}
         boolean allowed = Build.VERSION.SDK_INT >= 30
                 ? Environment.isExternalStorageManager()
                 : checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED

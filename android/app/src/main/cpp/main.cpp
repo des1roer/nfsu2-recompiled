@@ -339,6 +339,7 @@ extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nat
 extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeGamepadLayout(JNIEnv*,jclass,jboolean console){
     gamepad.setConsoleLayout(console==JNI_TRUE);
 }
+extern "C" JNIEXPORT jfloat JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeSpeed(JNIEnv*,jclass){return guestHudSpeedKmh();}
 extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeGamepadConnected(JNIEnv*,jclass,jboolean connected){setGuestPadConnected(connected==JNI_TRUE);}
 extern "C" JNIEXPORT void JNICALL Java_com_nfsu2_androidevolved_GameActivity_nativeGamepadDevices(JNIEnv* env,jclass,jintArray ids){
     std::vector<int32_t> devices;

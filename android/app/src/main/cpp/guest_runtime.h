@@ -41,3 +41,5 @@ float guestOverlayFrameMs();
 // (map: set the GPS; mailbox: delete the message).
 int guestMenuScreen();
 void requestGuestButton1();
+/** Player speed the HUD shows, km/h; negative when no race HUD ran in the last second. */
+float guestHudSpeedKmh();

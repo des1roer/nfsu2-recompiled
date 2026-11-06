@@ -1,5 +1,6 @@
 #include "game_log.h"
 #include "host_performance.h"
+#include <cmath>
 #include <initializer_list>
 #include <set>
 #include <condition_variable>
@@ -67,6 +68,12 @@ namespace {
 std::atomic<uint32_t> displayWidth{1280},displayHeight{720};
 std::atomic<uint32_t> renderWidth{0},renderHeight{0};
 std::atomic<unsigned> frameLimit{0};
+// The HUD speed readout (sub_004C68D0) takes fabs(float at +0x430) of the object
+// behind its argument; the lifted code reports that object on each entry
+// (NFS_HUD_SPEED_VA in arm64_guest.h) and the overlay reads the value itself.
+std::atomic<uint32_t> hudSpeedObject{0};std::atomic<int64_t> hudSpeedSeenMs{0};
+int64_t steadyMs();
+extern "C" void nfs_note_hud_speed(uint32_t object){hudSpeedObject.store(object,std::memory_order_relaxed);hudSpeedSeenMs.store(steadyMs(),std::memory_order_relaxed);}
 std::string hex(uint32_t va) {
     std::ostringstream out; out << "0x" << std::hex << std::setw(8) << std::setfill('0') << va;
     return out.str();
@@ -974,6 +981,13 @@ extern "C" recomp_func_t recomp_lookup_import(uint32_t va) {
         NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Guest import %s from %08x",imports[index].name.c_str(),g_cur_func);
     return imports[index].function;
 }
+extern "C" recomp_func_t nfs_icall_resolve(uint32_t va) {
+    // Sound, input, D3D9 and import stubs (0x7c000000..0x7fffffff): nothing lifted
+    // or overridden lives there, so the vtable calls of a frame skip both probes.
+    if(va-0x7c000000u<0x04000000u)return recomp_lookup_import(va);
+    recomp_func_t fn=recomp_lookup_manual(va);if(!fn)fn=recomp_lookup(va);
+    return fn?fn:recomp_lookup_import(va);
+}
 extern "C" void recomp_unresolved(const char* kind,uint32_t va,uint32_t from) {
     if(from==0x00725520u&&memory){
         uint32_t node=read32(0x8b446c);
@@ -1204,6 +1218,12 @@ void updateGuestMenuScreen(){
 void setGuestRegion(int region){forcedGuestRegion=region<0||region>1?-1:region;}
 float guestOverlayFps(){return overlayFps.load();}
 float guestOverlayFrameMs(){return overlayFrameMs.load();}
+float guestHudSpeedKmh(){
+    uint32_t object=hudSpeedObject.load(std::memory_order_relaxed);
+    if(!object||!memory||steadyMs()-hudSpeedSeenMs.load(std::memory_order_relaxed)>1000||!memory->readable(object+0x430,4))return -1;
+    float speed;std::memcpy(&speed,memory->address(object+0x430,4),4);
+    return std::fabs(speed)*3.6f;
+}
 void setGuestFrameLimit(unsigned framesPerSecond){
     frameLimit=(framesPerSecond>=30&&framesPerSecond<=240)?framesPerSecond:0;
     // The game paces itself to 1/60 s; let it run at the cap (uncapped: the 120 Hz display).
