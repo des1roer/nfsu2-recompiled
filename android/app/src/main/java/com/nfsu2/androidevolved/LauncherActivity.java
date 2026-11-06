@@ -210,7 +210,7 @@ public final class LauncherActivity extends Activity {
         if (exe && !language) addCheck(getString(R.string.launcher_check_language_missing), false, true);
         // The European region loads GLOBAL/GLOBALTEXTURESROW.BIN instead of GLOBALTEXTURESNA.BIN; only
         // European discs install it, and without it the game cannot load its global textures.
-        boolean region = !"eu".equals(GameOptions.get(this, GameOptions.REGION))
+        boolean region = !"eu".equals(GameOptions.regionValue(this))
                 || (allowed && fileIgnoringCase(new File(root, "GLOBAL"), "GLOBALTEXTURESROW.BIN"));
         if (!region) addCheck(getString(R.string.launcher_check_region_rows), false, true);
         boolean ready = exe && language && region;

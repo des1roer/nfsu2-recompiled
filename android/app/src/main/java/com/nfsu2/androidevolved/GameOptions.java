@@ -84,9 +84,18 @@ final class GameOptions {
         }
     }
 
+    /** REGION has no registered Option (no UI, no labels): this build doesn't offer it -- the SKU
+     * address is only known for the documented SPEED2.EXE, not the one this fork bundles. find()/get()
+     * require a registered Option and would throw for this key, so read the raw preference instead;
+     * nothing currently writes it, so this is always the "auto" default in practice. */
+    static String regionValue(Context context) {
+        String value = prefs(context).getString(REGION, "auto");
+        return "eu".equals(value) || "na".equals(value) ? value : "auto";
+    }
+
     /** -1 keeps the executable's region, 0 North America, 1 Europe (native setGuestRegion). */
     static int regionCode(Context context) {
-        switch (get(context, REGION)) {
+        switch (regionValue(context)) {
             case "eu": return 1;
             case "na": return 0;
             default: return -1;
