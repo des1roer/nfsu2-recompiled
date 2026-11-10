@@ -8,6 +8,15 @@ def gameData = project.findProperty('nfsGameData') ?: localProps.getProperty('nf
 def gameAssets = layout.buildDirectory.dir('game-assets').get().asFile
 // Build start time, shown next to the version in the launcher and in diagnostics.
 def buildStamp = new Date().format('yyyy-MM-dd_HH:mm')
+// Release tag of this fork (des1roer/nfsu2-recompiled tags 1.0.X, unrelated to versionName):
+// -PnfsRelease=1.0.43 when building a release, otherwise the latest 1.* git tag. The launcher
+// compares it with the latest GitHub release and fetches its notes by it.
+def releaseTag = project.findProperty('nfsRelease') ?: {
+    try {
+        def git = ['git', 'describe', '--tags', '--abbrev=0', '--match', '1.*'].execute(null, rootProject.projectDir)
+        def out = git.text.trim(); git.waitFor() == 0 ? out : ''
+    } catch (ignored) { '' }
+}()
 
 android {
     namespace 'com.nfsu2.androidevolved'
@@ -22,6 +31,7 @@ android {
         versionCode 25
         versionName '0.14.10'
         resValue 'string', 'build_date', buildStamp
+        resValue 'string', 'release_tag', releaseTag
         // -PnfsAbi=armeabi-v7a builds the separate 32-bit APK.
         ndk { abiFilters(project.findProperty('nfsAbi') ?: 'arm64-v8a') }
         if (file('../../src/recomp/gen').exists()) {

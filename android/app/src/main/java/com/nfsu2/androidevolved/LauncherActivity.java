@@ -86,7 +86,7 @@ public final class LauncherActivity extends Activity {
                 .setPositiveButton(R.string.common_ok, (d, which) -> ReleaseUpdates.whatsNewSeen(this))
                 .setNeutralButton(R.string.view_on_github, (d, which) -> {
                     ReleaseUpdates.whatsNewSeen(this);
-                    openUrl(Uri.parse("https://github.com/punitr2007/nfsu2-recompiled/releases/tag/v" + Uri.encode(version)));
+                    openUrl(Uri.parse(ReleaseUpdates.releaseUrl(version)));
                 })
                 .setOnCancelListener(d -> ReleaseUpdates.whatsNewSeen(this))
                 .show();
@@ -541,8 +541,8 @@ public final class LauncherActivity extends Activity {
             if (isFinishing() || isDestroyed()) return;
             refreshOptions();
             if (result.error != null) { if (manual) message(getString(R.string.updates_title), result.error); return; }
-            if (!ReleaseVersion.newer(result.tag, ReleaseUpdates.installed(this))) {
-                if (manual) message(getString(R.string.updates_title), getString(R.string.updates_current_latest, ReleaseUpdates.installed(this)));
+            if (!ReleaseVersion.newer(result.tag, ReleaseUpdates.release(this))) {
+                if (manual) message(getString(R.string.updates_title), getString(R.string.updates_current_latest, ReleaseUpdates.release(this)));
                 return;
             }
             android.content.SharedPreferences updates = ReleaseUpdates.prefs(this);

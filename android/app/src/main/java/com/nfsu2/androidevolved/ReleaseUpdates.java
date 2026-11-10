@@ -16,8 +16,8 @@ import javax.net.ssl.HttpsURLConnection;
 
 /** Optional official GitHub updates. No APK is installed or downloaded in the background. */
 final class ReleaseUpdates {
-    private static final String REPO = "https://github.com/punitr2007/nfsu2-recompiled/";
-    private static final String API = "https://api.github.com/repos/punitr2007/nfsu2-recompiled/releases/latest";
+    private static final String REPO = "https://github.com/des1roer/nfsu2-recompiled/";
+    private static final String API = "https://api.github.com/repos/des1roer/nfsu2-recompiled/releases/latest";
     static final class Result {
         final String tag, url, error;
         Result(String tag, String url, String error) { this.tag = tag; this.url = url; this.error = error; }
@@ -27,6 +27,12 @@ final class ReleaseUpdates {
         try { return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName; }
         catch (Exception ignored) { return "0.0.0"; }
     }
+    /** This build's release tag in des1roer/nfsu2-recompiled (1.0.X), or versionName if unknown. */
+    static String release(Context context) {
+        String tag = context.getString(R.string.release_tag);
+        return tag.isEmpty() ? installed(context) : tag;
+    }
+    static String releaseUrl(String tag) { return REPO + "releases/tag/" + Uri.encode(tag); }
     static void check(Context context, boolean force, Consumer<Result> callback) {
         Context app = context.getApplicationContext();
         Handler main = new Handler(Looper.getMainLooper());
@@ -56,7 +62,7 @@ final class ReleaseUpdates {
         if (previous != current) {
             boolean updated = previous != 0 ? current > previous : info.lastUpdateTime > info.firstInstallTime;
             SharedPreferences.Editor edit = prefs.edit().putLong("seen_version_code", current);
-            if (updated) edit.putString("whats_new", installed(context)); else edit.remove("whats_new");
+            if (updated) edit.putString("whats_new", release(context)); else edit.remove("whats_new");
             edit.apply();
         }
         String pending = prefs.getString("whats_new", "");
@@ -65,16 +71,14 @@ final class ReleaseUpdates {
 
     static void whatsNewSeen(Context context) { prefs(context).edit().remove("whats_new").apply(); }
 
-    /** Release notes of a version (GitHub release v{version}) as plain text, or null if unavailable. */
+    /** Release notes of a release tag (1.0.X) as plain text, or null if unavailable. */
     static void releaseNotes(Context context, String version, Consumer<String> callback) {
         Handler main = new Handler(Looper.getMainLooper());
         Thread worker = new Thread(() -> {
             String notes = null;
             try {
-                String tag = version.startsWith("v") ? version : "v" + version;
-                if (!tag.endsWith("-en")) tag = tag + "-en";
                 HttpsURLConnection connection = (HttpsURLConnection) new URL(
-                        "https://api.github.com/repos/punitr2007/nfsu2-recompiled/releases/tags/" + Uri.encode(tag)).openConnection();
+                        "https://api.github.com/repos/des1roer/nfsu2-recompiled/releases/tags/" + Uri.encode(version)).openConnection();
                 connection.setConnectTimeout(6000); connection.setReadTimeout(6000);
                 connection.setRequestProperty("Accept", "application/vnd.github+json");
                 connection.setRequestProperty("User-Agent", "NFSU2-Android-Evolved/" + version);
