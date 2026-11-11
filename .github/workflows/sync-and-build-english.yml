@@ -32,6 +32,8 @@ permissions:
 jobs:
   sync-and-release:
     runs-on: ubuntu-latest
+    env:
+      NDK_VERSION: 27.0.12077973
     steps:
       - name: Checkout Fork Repository
         uses: actions/checkout@v4
@@ -87,6 +89,18 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
+          cache: 'gradle'
+
+      - name: Export ANDROID_HOME for cache key
+        if: steps.release-check.outputs.should_build == 'true'
+        run: echo "ANDROID_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+
+      - name: Cache Android NDK
+        if: steps.release-check.outputs.should_build == 'true'
+        uses: actions/cache@v4
+        with:
+          path: ${{ env.ANDROID_HOME }}/ndk/${{ env.NDK_VERSION }}
+          key: ndk-${{ env.NDK_VERSION }}-${{ runner.os }}
 
       - name: Set up Android NDK & SDK Tools
         if: steps.release-check.outputs.should_build == 'true'
@@ -98,13 +112,13 @@ jobs:
           echo "Accepting Android SDK licenses..."
           yes | sdkmanager --licenses || true
 
-          # Look for pre-installed NDK in $ANDROID_HOME/ndk
+          # Look for pre-installed or cache-restored NDK in $ANDROID_HOME/ndk
           NDK_PATH=$(ls -d $ANDROID_HOME/ndk/* 2>/dev/null | sort -V | tail -n 1)
 
           if [ -z "$NDK_PATH" ] || [ ! -d "$NDK_PATH" ]; then
-            echo "No pre-installed NDK found. Installing ndk;27.0.12077973..."
-            yes | sdkmanager --install "ndk;27.0.12077973" || true
-            NDK_PATH="$ANDROID_HOME/ndk/27.0.12077973"
+            echo "No pre-installed NDK found. Installing ndk;$NDK_VERSION..."
+            yes | sdkmanager --install "ndk;$NDK_VERSION" || true
+            NDK_PATH="$ANDROID_HOME/ndk/$NDK_VERSION"
           fi
 
           if [ ! -d "$NDK_PATH" ]; then
