@@ -43,6 +43,16 @@ android {
                 "-DNFS_PGO_PROFILE=${project.findProperty('nfsPgoProfile') ?: ''}" } }
         }
     }
+    // assembleRelease: not debuggable, so ART compiles the Java side (touch controls,
+    // input) instead of interpreting it with CheckJNI. Signed with the debug key so it
+    // installs over debug builds and keeps the game data; profileable keeps simpleperf.
+    buildTypes {
+        release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            profileable true
+        }
+    }
     if (file('../../src/recomp/gen').exists()) {
         externalNativeBuild { cmake { path file('src/main/cpp/CMakeLists.txt'); version '3.30.5' } }
     }
