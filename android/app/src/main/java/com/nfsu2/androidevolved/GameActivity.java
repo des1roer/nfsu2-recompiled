@@ -177,6 +177,8 @@ public final class GameActivity extends NativeActivity {
     private static native void nativeSkipIntro(boolean enabled);
     private static native void nativeCheatCode(String code);
     private static native void nativeAddCash(int amount);
+    private static native void nativeSetMaxDriftMultiplier(boolean enabled);
+    private static native boolean nativeMaxDriftMultiplier();
     private static native void nativeActivateCheat(String code);
     private static native void nativeOnlineServer(String host);
     private static native void nativeGamepadConnected(boolean connected);
@@ -293,9 +295,13 @@ public final class GameActivity extends NativeActivity {
                 "needperformance2", "gimmevisual1", "gimmevisual2", "opendoors", "gimmechingy",
                 "tunejapantuning", "davidchoeart", "shinestreetbright", "wannacapone", "wantmyd3",
                 "yodogg", "goforoldspice", "gottaedge", "gottahavebk", "gotmycingular", "needmybestbuy"};
-        String[] labels = new String[cashRes.length + res.length + 1];
+        final boolean driftOn = nativeMaxDriftMultiplier();
+        final int drift = cashRes.length;
+        final int first = drift + 1;
+        String[] labels = new String[first + res.length + 1];
         for (int i = 0; i < cashRes.length; i++) labels[i] = getString(cashRes[i]);
-        for (int i = 0; i < res.length; i++) labels[cashRes.length + i] = getString(res[i]);
+        labels[drift] = getString(driftOn ? R.string.cheat_drift_multiplier_on : R.string.cheat_drift_multiplier_off);
+        for (int i = 0; i < res.length; i++) labels[first + i] = getString(res[i]);
         labels[labels.length - 1] = getString(R.string.cheats_custom_entry);
 
         // setMessage() and setItems() on the same builder are mutually exclusive in Android:
@@ -304,11 +310,16 @@ public final class GameActivity extends NativeActivity {
         new AlertDialog.Builder(this).setTitle(getString(R.string.cheats_title) + "\n" + getString(R.string.cheats_hint))
                 .setItems(labels, (dialog, which) -> {
                     if (which < cashAmounts.length) addCash(cashAmounts[which]);
-                    else if (which < cashAmounts.length + codes.length) activateCheat(codes[which - cashAmounts.length]);
+                    else if (which == drift) setMaxDriftMultiplier(!driftOn);
+                    else if (which < first + codes.length) activateCheat(codes[which - first]);
                     else showCustomCheatCode();
                 })
                 .setNegativeButton(R.string.common_close, null)
                 .show();
+    }
+    private void setMaxDriftMultiplier(boolean enabled) {
+        nativeSetMaxDriftMultiplier(enabled);
+        Toast.makeText(this, enabled ? R.string.cheats_drift_multiplier_enabled : R.string.cheats_drift_multiplier_disabled, Toast.LENGTH_SHORT).show();
     }
     private void activateCheat(String code) {
         nativeActivateCheat(code);

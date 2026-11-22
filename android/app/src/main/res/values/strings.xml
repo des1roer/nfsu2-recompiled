@@ -278,4 +278,8 @@
     <string name="driver_wrong_gpu">This driver is not for your GPU (%1$s): the game will probably not start. Choose the system driver or one made for your GPU.</string>
     <string name="lan_notice_title">LAN race</string>
     <string name="lan_notice_server_dll">Your server.dll is not the version this app was prepared with, so this phone cannot host a LAN race. You can still join one another player hosts. To host, copy into the nfsu2 folder the server.dll from the same PC install you took the game executable from.</string>
+    <string name="cheat_drift_multiplier_off">Drift multiplier always X5: off (tap to turn on)</string>
+    <string name="cheat_drift_multiplier_on">Drift multiplier always X5: on (tap to turn off)</string>
+    <string name="cheats_drift_multiplier_enabled">Drift multiplier X5 is on</string>
+    <string name="cheats_drift_multiplier_disabled">Drift multiplier back to normal</string>
 </resources>

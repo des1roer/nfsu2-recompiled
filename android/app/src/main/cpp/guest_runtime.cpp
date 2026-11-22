@@ -512,6 +512,41 @@ static void applyUnlockFlags(){
     if(unlockPerformanceParts.load()){uint32_t a=locateUnlockFlag(true);if(a)*static_cast<unsigned char*>(ptr(a,1))=1;}
     if(unlockVisualParts.load()){uint32_t a=locateUnlockFlag(false);if(a)*static_cast<unsigned char*>(ptr(a,1))=1;}
 }
+static uint32_t locateRacerList(){
+    static uint32_t found=0;static bool searched=false;
+    if(searched)return found;searched=true;
+    const unsigned char lead[]={0x8b,0x35},tail[]={0x8b,0x46,0x18,0x33,0xed,0x85,0xc0};
+    const unsigned char* image=static_cast<const unsigned char*>(ptr(imageBase,imageSize));
+    const unsigned char* end=image+imageSize;
+    for(const unsigned char* p=image;;){
+        p=static_cast<const unsigned char*>(memmem(p,size_t(end-p),lead,sizeof lead));
+        if(!p||size_t(end-p)<sizeof lead+4+sizeof tail)break;
+        if(std::memcmp(p+6,tail,sizeof tail)==0){
+            uint32_t addr;std::memcpy(&addr,p+2,4);
+            if(addr>=imageBase&&addr+4<=imageBase+imageSize){found=addr;break;}
+        }
+        ++p;
+    }
+    NFS_RUNTIME_LOG(found?ANDROID_LOG_INFO:ANDROID_LOG_WARN,"NFSU2","Racer list %s%08x",found?"located at ":"not found in this SPEED2.EXE build; drift multiplier cheat disabled (",found?found:0u);
+    return found;
+}
+std::atomic<bool> maxDriftMultiplier{false};
+static void applyDriftMultiplier(){
+    if(!maxDriftMultiplier.load(std::memory_order_relaxed))return;
+    uint32_t global=locateRacerList();if(!global)return;
+    auto load=[](uint32_t va,uint32_t& out){if(!va||!memory->readable(va,4))return false;out=read32(va);return true;};
+    uint32_t list,count;
+    if(!load(global,list)||!load(list+0x18,count)||count>16)return;
+    for(uint32_t i=0;i<count;++i){
+        uint32_t racer,player,drift,info,kind,type,multiplier;
+        if(!load(list+0x1c+i*4,racer)||!load(racer+0x1c,player)||!load(player+0x1d8,drift))continue;
+        if(!load(player,info)||!load(info+0x14,kind)||!load(kind+4,type)||type!=1)continue;
+        if(!memory->writable(drift+0x1c,4)||!load(drift+0x1c,multiplier)||multiplier<1||multiplier>=5)continue;
+        write32(drift+0x1c,5);
+        static unsigned writes=0;
+        if(++writes<=3||!(writes&1023))NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Drift multiplier X%u -> X5 (racer %u, drift state %08x, %u so far)",multiplier,i,drift,writes);
+    }
+}
 static void applyPendingCheatCodes(){
     std::vector<std::string> names;
     {std::lock_guard<std::mutex> lock(pendingCheatsMutex);names.swap(pendingCheats);}
@@ -1547,6 +1582,11 @@ void setGuestCheatCode(const std::string& code){
     }).detach();
 }
 void queueGuestCash(int32_t amount){pendingCash.fetch_add(amount);}
+void setGuestMaxDriftMultiplier(bool enabled){
+    maxDriftMultiplier.store(enabled,std::memory_order_relaxed);
+    NFS_RUNTIME_LOG(ANDROID_LOG_INFO,"NFSU2","Drift multiplier cheat %s",enabled?"on":"off");
+}
+bool guestMaxDriftMultiplier(){return maxDriftMultiplier.load(std::memory_order_relaxed);}
 void queueGuestCheat(const std::string& name){std::lock_guard<std::mutex> lock(pendingCheatsMutex);pendingCheats.push_back(name);}
 void clearGuestInput(){std::lock_guard<std::mutex> lock(inputMutex);for(unsigned scan=0;scan<256;++scan)if(inputKeys[scan]){recordInputKey(scan,false);enqueueGuestKey(scan,false);}inputKeys.fill(0);inputMouseButtons.fill(0);inputMouseX=inputMouseY=inputMouseZ=0;}
 void setGuestPointer(float x,float y,int phase){

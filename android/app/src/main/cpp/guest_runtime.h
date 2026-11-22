@@ -11,6 +11,8 @@ void setGuestKey(unsigned scan,bool down);
 void setGuestCheatCode(const std::string& code);
 void queueGuestCash(int32_t amount);
 void queueGuestCheat(const std::string& name);
+void setGuestMaxDriftMultiplier(bool enabled);
+bool guestMaxDriftMultiplier();
 void clearGuestInput();
 bool guestDrivingControls();
 // A message for the player that does not stop the game (shown by GameActivity); empty when none.

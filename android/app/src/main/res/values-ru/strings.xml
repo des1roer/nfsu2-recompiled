@@ -278,4 +278,8 @@
     <string name="driver_wrong_gpu">Этот драйвер не для вашего GPU (%1$s): игра, скорее всего, не запустится. Выберите системный драйвер или драйвер для вашего GPU.</string>
     <string name="lan_notice_title">Гонка по LAN</string>
     <string name="lan_notice_server_dll">Ваш server.dll не той версии, под которую собрано приложение, поэтому этот телефон не может создать гонку по LAN. Присоединиться к гонке другого игрока можно. Чтобы создавать гонки, скопируйте в папку nfsu2 server.dll из той же установки игры на ПК, откуда взят исполняемый файл.</string>
+    <string name="cheat_drift_multiplier_off">Множитель дрифта всегда X5: выкл (нажмите, чтобы включить)</string>
+    <string name="cheat_drift_multiplier_on">Множитель дрифта всегда X5: вкл (нажмите, чтобы выключить)</string>
+    <string name="cheats_drift_multiplier_enabled">Множитель дрифта X5 включён</string>
+    <string name="cheats_drift_multiplier_disabled">Множитель дрифта снова обычный</string>
 </resources>

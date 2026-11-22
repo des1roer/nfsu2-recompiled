@@ -278,4 +278,8 @@
     <string name="driver_wrong_gpu">Este driver no es para tu GPU (%1$s): el juego probablemente no arrancará. Elige el driver del sistema o uno hecho para tu GPU.</string>
     <string name="lan_notice_title">Carrera LAN</string>
     <string name="lan_notice_server_dll">Tu server.dll no es la versión con la que se preparó esta app, así que este teléfono no puede crear una carrera LAN. Sí puedes unirte a una que cree otro jugador. Para crearla, copia en la carpeta nfsu2 el server.dll de la misma instalación de PC de donde sacaste el ejecutable del juego.</string>
+    <string name="cheat_drift_multiplier_off">Multiplicador de derrape siempre X5: desactivado (toca para activar)</string>
+    <string name="cheat_drift_multiplier_on">Multiplicador de derrape siempre X5: activado (toca para desactivar)</string>
+    <string name="cheats_drift_multiplier_enabled">Multiplicador de derrape X5 activado</string>
+    <string name="cheats_drift_multiplier_disabled">Multiplicador de derrape normal</string>
 </resources>
