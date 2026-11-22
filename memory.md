@@ -67,3 +67,7 @@ user who isn't running this maintainer's own exe. The cherry-picked PR
 (codepdbh/nfsu2-recompiled#2119) only *adds* the `90d73842` branch as an
 opt-in option and leaves the default alone — that's the pattern to repeat:
 new build support is additive, the default never moves.
+
+## Status log
+
+- 2026-11-22: release 1.0.44 published (https://github.com/des1roer/nfsu2-recompiled/releases/tag/1.0.44): portable `--light.apk` and `--light-a720-fast-pgo.apk`, both assembleRelease with `-PnfsRelease=1.0.44`, source 9fb1e8a (upstream v0.14.15-v0.14.17 merged, fast-core threshold 80%). Final a720 APK installed on Xiaomi 15T. Nothing pending.
