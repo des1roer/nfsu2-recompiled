@@ -13,6 +13,8 @@ void queueGuestCash(int32_t amount);
 void queueGuestCheat(const std::string& name);
 void clearGuestInput();
 bool guestDrivingControls();
+// A message for the player that does not stop the game (shown by GameActivity); empty when none.
+std::string takeGuestNotice();
 // Physical gamepad seen by the game as a DirectInput joystick: axes X, Y, Z
 // (triggers), Rx, Ry, Rz in -1..1; buttons A B X Y LB RB Back Start LS RS as bits.
 void setGuestPad(const float axes[6],uint32_t buttons,int hatX,int hatY);

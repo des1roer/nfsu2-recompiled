@@ -51,6 +51,7 @@ public final class GameActivity extends NativeActivity {
     private static native void nativeKey(int scan, boolean down);
     private static native boolean nativeDrivingControls();
     private static native boolean nativeGamepadUsed();
+    private static native String nativeTakeNotice();
     private final boolean[] touchKeys=new boolean[256],sentKeys=new boolean[256];
     private boolean tiltLeft,tiltRight,tiltEnabled,tiltCalibrate=true;
     private float tiltFiltered,tiltNeutral,tiltSensitivity=1;
@@ -157,9 +158,14 @@ public final class GameActivity extends NativeActivity {
             // Playing on with the pad after a touch revealed the controls hides them again.
             if(nativeGamepadUsed())touchControls.gamepadUsed();
             updateHudForGamepad(touchControls.hiddenByGamepad());
+            if("server.dll".equals(nativeTakeNotice()))showNotice(getString(R.string.lan_notice_title),getString(R.string.lan_notice_server_dll));
             touchControls.postDelayed(this,250);
         }
     };
+    private void showNotice(String title,String text){
+        new android.app.AlertDialog.Builder(this,android.R.style.Theme_DeviceDefault_Dialog_Alert)
+                .setTitle(title).setMessage(text).setPositiveButton(android.R.string.ok,null).show();
+    }
     private static native void nativeTypeText(String value, boolean replace);
     private static native void nativePointer(float x, float y, int phase);
     private static native void nativeLanguage(String language);

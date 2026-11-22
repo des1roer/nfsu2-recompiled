@@ -267,4 +267,15 @@
     <string name="issue_technical_summary">### Техническая сводка</string>
     <string name="issue_last_frame">Последний кадр: %1$s</string>
     <string name="issue_last_game_lines">--- последние строки журнала игры ---</string>
+    <string name="gpu_advice_adreno_turnip">Для вашего Snapdragon: Turnip (Mesa) для Adreno 6xx/7xx, если системный драйвер тормозит или даёт артефакты. PanVK на Adreno не работает.</string>
+    <string name="gpu_advice_adreno_system">Рекомендуется системный драйвер. Turnip на этой Adreno экспериментальный.</string>
+    <string name="gpu_advice_mali_valhall">Для вашего GPU Mali: PanVK (Mesa), если системный драйвер тормозит или даёт артефакты. Turnip на Mali не работает.</string>
+    <string name="gpu_advice_mali_older">Рекомендуется системный драйвер. PanVK на Mali-G52/G72/G76 и более старых экспериментальный, а Turnip на Mali не работает.</string>
+    <string name="gpu_advice_powervr">Рекомендуется системный драйвер. Стабильной замены для PowerVR нет, Turnip и PanVK на этом GPU не работают.</string>
+    <string name="gpu_advice_xclipse">Рекомендуется системный драйвер. Turnip и PanVK на GPU Samsung Xclipse не работают.</string>
+    <string name="gpu_advice_default">Рекомендуется системный драйвер.</string>
+    <string name="gpu_renderer_line">GPU: %1$s</string>
+    <string name="driver_wrong_gpu">Этот драйвер не для вашего GPU (%1$s): игра, скорее всего, не запустится. Выберите системный драйвер или драйвер для вашего GPU.</string>
+    <string name="lan_notice_title">Гонка по LAN</string>
+    <string name="lan_notice_server_dll">Ваш server.dll не той версии, под которую собрано приложение, поэтому этот телефон не может создать гонку по LAN. Присоединиться к гонке другого игрока можно. Чтобы создавать гонки, скопируйте в папку nfsu2 server.dll из той же установки игры на ПК, откуда взят исполняемый файл.</string>
 </resources>

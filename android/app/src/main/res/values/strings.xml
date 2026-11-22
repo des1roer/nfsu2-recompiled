@@ -267,4 +267,15 @@
     <string name="issue_technical_summary">### Technical summary</string>
     <string name="issue_last_frame">Last frame: %1$s</string>
     <string name="issue_last_game_lines">--- last game lines ---</string>
+    <string name="gpu_advice_adreno_turnip">Recommended for your Snapdragon: Turnip (Mesa) for Adreno 6xx/7xx if the system driver is slow or shows graphics glitches. PanVK does not work on Adreno.</string>
+    <string name="gpu_advice_adreno_system">Recommended: the system driver. Turnip on this Adreno is experimental.</string>
+    <string name="gpu_advice_mali_valhall">Recommended for your Mali GPU: PanVK (Mesa) if the system driver is slow or shows graphics glitches. Turnip does not work on Mali.</string>
+    <string name="gpu_advice_mali_older">Recommended: the system driver. PanVK on Mali-G52/G72/G76 or older is experimental, and Turnip does not work on Mali.</string>
+    <string name="gpu_advice_powervr">Recommended: the system driver. There is no stable replacement driver for PowerVR; Turnip and PanVK do not work on this GPU.</string>
+    <string name="gpu_advice_xclipse">Recommended: the system driver. Turnip and PanVK do not work on Samsung Xclipse GPUs.</string>
+    <string name="gpu_advice_default">Recommended: the system driver.</string>
+    <string name="gpu_renderer_line">GPU: %1$s</string>
+    <string name="driver_wrong_gpu">This driver is not for your GPU (%1$s): the game will probably not start. Choose the system driver or one made for your GPU.</string>
+    <string name="lan_notice_title">LAN race</string>
+    <string name="lan_notice_server_dll">Your server.dll is not the version this app was prepared with, so this phone cannot host a LAN race. You can still join one another player hosts. To host, copy into the nfsu2 folder the server.dll from the same PC install you took the game executable from.</string>
 </resources>
