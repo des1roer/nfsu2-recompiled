@@ -71,3 +71,4 @@ new build support is additive, the default never moves.
 ## Status log
 
 - 2026-11-22: release 1.0.44 published (https://github.com/des1roer/nfsu2-recompiled/releases/tag/1.0.44): portable `--light.apk` and `--light-a720-fast-pgo.apk`, both assembleRelease with `-PnfsRelease=1.0.44`, source 9fb1e8a (upstream v0.14.15-v0.14.17 merged, fast-core threshold 80%). Final a720 APK installed on Xiaomi 15T. Nothing pending.
+- 2026-11-28: user explicitly confirmed publishing an embedded (game-data-bundled) APK to a public GitHub release for this repo. Built `assembleRelease -PnfsGameData="C:/games/nfsu2"` at existing tag 1.0.45 (HEAD unchanged, 9d150fb), uploaded `NFSU2-AndroidEvolved-1.0.45-arm64-v8a--embedded.apk` (~1.87 GB) to the existing https://github.com/des1roer/nfsu2-recompiled/releases/tag/1.0.45 release alongside the two `--light*` assets. Not installed/tested on any device. Release notes body for 1.0.45 was not updated to mention the new asset.
